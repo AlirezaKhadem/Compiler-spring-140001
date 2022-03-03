@@ -1,0 +1,19 @@
+for
+(
+T_ID i
+=
+T_INTLITERAL 0
+;
+T_ID i
+<
+T_INTLITERAL 100
+;
+T_ID i
++=
+T_INTLITERAL 1
+)
+Print
+(
+T_ID i
+)
+;

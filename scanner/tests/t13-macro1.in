@@ -1,0 +1,5 @@
+define SEMICOLON ;
+define FOR100 for(i = 0; i < 100; i += 1)
+
+FOR100
+Print(i)SEMICOLON
