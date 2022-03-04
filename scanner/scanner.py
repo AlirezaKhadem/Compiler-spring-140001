@@ -21,11 +21,10 @@ from scanner.patterns import (
     SINGS_REGEX,
     MACROS,
 )
-from scanner.tocen import Token
+from scanner.token_ import Token
 
 
 class Scanner:
-
     def __init__(self, text=None):
         self.text = text
         self.definitions = dict()
@@ -63,10 +62,38 @@ class Scanner:
                 return Token(types[int(i / 2)], match.group())
 
     @staticmethod
-    def _starts_with_string(input_string):
+    def _starts_with_double_quote(input_string):
         match = re.search('"', input_string[1:])
-        if match is not None:
-            return Token("T_STRINGLITERAL", input_string[:match.span()[1] + 1])
+        if match is None:
+            return
+        token = Token("T_STRINGLITERAL", input_string[:match.span()[1] + 1])
+        while input_string[match.span()[0]:match.span()[1] + 1] in ['\\"', "\\'"]:
+            print('fuck all of the people in the world')
+            input_string = input_string[match.span()[1]:]
+            match = re.search('"', input_string[1:])
+            if match is None:
+                # todo : should raise compile error
+                return
+            token.token_value += input_string[1: match.span()[1] + 1]
+
+        return token
+
+    @staticmethod
+    def _starts_with_single_quote(input_string):
+        match = re.search("'", input_string[1:])
+        if match is None:
+            return
+        token = Token("T_STRINGLITERAL", input_string[:match.span()[1] + 1])
+
+        while input_string[match.span()[0]:match.span()[1] + 1] in ['\\"', "\\'"]:
+            input_string = input_string[match.span()[1]:]
+            match = re.search("'", input_string[1:])
+            if match is None:
+                # todo : should raise compile error
+                return
+            token.token_value += input_string[1: match.span()[1] + 1]
+
+        return token
 
     @staticmethod
     def _starts_with_sign(input_string):
@@ -79,28 +106,30 @@ class Scanner:
 
     # Returns the first token in input_string. input_string is a string without next line.
     def _get_first_token(self, input_string):
-        offset, input_string = len(input_string) - len(input_string.lstrip()), input_string.lstrip()
-
-        if not input_string:
-            return Token("", ""), offset
+        input_string = input_string.lstrip()
 
         token = None
-        if input_string[0].isalpha():
-            token = self._starts_with_alphabet(input_string)
-        if input_string[0] == '_':
-            token = self._starts_with_underline(input_string)
-        if input_string[0].isdigit():
-            token = self._starts_with_digit(input_string)
-        if input_string[0] == '"':
-            token = self._starts_with_string(input_string)
-        if input_string[:2] in ['//', '/*']:
-            token = Token("", input_string[:2])
-        if token is None:
-            token = self._starts_with_sign(input_string)
+        if not input_string:
+            token = Token("", "")
+        else:
+            if input_string[0].isalpha():
+                token = self._maximum_match(token, self._starts_with_alphabet(input_string))
+            if input_string[0] == '_':
+                token = self._maximum_match(token, self._starts_with_underline(input_string))
+            if input_string[0].isdigit():
+                token = self._maximum_match(token, self._starts_with_digit(input_string))
+            if input_string[0] == '"':
+                token = self._maximum_match(token, self._starts_with_double_quote(input_string))
+            if input_string[0] == "'":
+                token = self._maximum_match(token, self._starts_with_single_quote(input_string))
+            if input_string[:2] in ['//', '/*']:
+                token = self._maximum_match(token, Token("", input_string[:2]))
+            if token is None:
+                token = self._maximum_match(token, self._starts_with_sign(input_string))
 
         if token.define is not None:
-            return token, input_string[len(token.define) + offset:]
-        return token, input_string[len(token.token_value) + offset:]
+            return token, input_string[len(token.define):]
+        return token, input_string[len(token.token_value):]
 
     def get_tokens(self):
         tokens = []
@@ -120,18 +149,39 @@ class Scanner:
                     return None
                 if token.token_value in ["", "//"]:
                     break
-                if token.token_value == '/*':
+                if self._is_start_of_multiline_comment(token.token_value):
                     in_comment = True
                     continue
-
-                if token.token_value in MACROS:
-                    define_key_token, line = self._get_first_token(line)
-                    define_value_token, line = self._get_first_token(line)
-
-                    self.definitions.update({
-                        define_key_token.token_value: define_value_token.token_value
-                    })
+                if self._is_macro(token.token_value):
+                    self._define_macro(line)
                     continue
 
                 tokens.append(token)
         return tokens
+
+    def _maximum_match(self, prev_token, token):
+        if prev_token is None:
+            new_token = token
+        else:
+            if len(token.token_value) > len(prev_token.token_value):
+                new_token = token
+            else:
+                new_token = prev_token
+
+        return new_token
+
+    @staticmethod
+    def _is_macro(token_value):
+        return token_value in MACROS
+
+    @staticmethod
+    def _is_start_of_multiline_comment(token_value):
+        return token_value == '/*'
+
+    def _define_macro(self, input_line):
+        define_key_token, input_line = self._get_first_token(input_line)
+        define_value_token, input_line = self._get_first_token(input_line)
+
+        self.definitions.update({
+            define_key_token.token_value: define_value_token.token_value
+        })
