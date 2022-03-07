@@ -38,7 +38,7 @@ class Scanner:
         match = re.search("\A(__func__|__line__)", input_string)
         if match is not None:
             next_index = match.span()[1]
-            if input_string[next_index] >= 'A' or input_string[next_index] <= 'z':
+            if len(input_string)<next_index and (input_string[next_index] >= 'A' or input_string[next_index] <= 'z'):
                 return None
             return Token(match.group(), match.group())
 
