@@ -137,7 +137,7 @@ class Scanner:
         for line in self.text.splitlines():
             while line != "":
                 if in_comment:
-                    comment_end = re.search('*/', line)
+                    comment_end = re.search('\*/', line)
                     if comment_end is None:
                         line = ""
                         continue
