@@ -34,8 +34,7 @@ REVERSED_REGEX = {
 }
 
 MACROS = {
-    'import',
-    'define',
+    'define'
 }
 
 IDENTIFIER_REGEX = "[A-Za-z]([A-Za-z]|_|[0-9])*"
