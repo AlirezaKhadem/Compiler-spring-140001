@@ -1,0 +1,58 @@
+class
+T_ID Person
+{
+string
+T_ID first_name
+;
+string
+T_ID last_name
+;
+int
+T_ID age
+;
+void
+T_ID report
+(
+)
+{
+if
+(
+this
+.
+T_ID age
+<
+T_INTLITERAL 18
+)
+return
+;
+Print
+(
+T_ID first_name
+,
+T_STRINGLITERAL " "
+,
+T_ID last_name
+)
+;
+}
+}
+int
+T_ID main
+(
+)
+{
+T_ID Person
+T_ID p
+;
+T_ID p
+=
+new
+T_ID Person
+;
+T_ID p
+.
+T_ID report
+(
+)
+;
+}

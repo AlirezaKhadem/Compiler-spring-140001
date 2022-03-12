@@ -1,0 +1,9 @@
+
+a bunch of tokens
+
+/* all of these lines are comments
+and should be ignored entirely
+until an end-of-comment sequence is
+found */
+
+some more code

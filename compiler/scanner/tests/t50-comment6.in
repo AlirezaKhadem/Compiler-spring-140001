@@ -1,0 +1,6 @@
+/* this is a legal comment
+/* this is too */
+but no longer a comment
+no longer a comment and a bunch of tokens follow */
+
+not comment either

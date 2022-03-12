@@ -1,0 +1,19 @@
+import
+T_STRINGLITERAL "filename.d"
+void
+T_ID printFuncNameAndLine
+(   
+)
+{
+Print
+(
+__line__
+)
+;
+Print
+(
+__func__
+)
+;
+}
+
