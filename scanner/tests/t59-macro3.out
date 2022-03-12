@@ -1,0 +1,34 @@
+class
+T_ID Program
+{
+void
+T_ID main
+(
+)
+{
+int
+T_ID i
+;
+for
+(
+T_ID i
+=
+T_INTLITERAL 0
+;
+T_ID i
+<
+T_INTLITERAL 100
+;
+T_ID i
++
++
+)
+{
+Print
+(
+T_ID i
+)
+;
+}
+}
+}

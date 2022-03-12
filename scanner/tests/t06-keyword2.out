@@ -5,6 +5,7 @@ bool
 string
 class
 null
+this
 for
 while
 if
@@ -12,7 +13,6 @@ else
 return
 break
 new
-this
 NewArray
 Print
 ReadInteger
