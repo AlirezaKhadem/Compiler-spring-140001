@@ -12,7 +12,7 @@ __author__ = 'Matin Amini, Alireza Khadem'
 
 import re
 
-from scanner.patterns import (
+from compiler.scanner.patterns import (
     IDENTIFIER_REGEX,
     FIRST_INT10_REGEX,
     FIRST_INT16_REGEX,
@@ -21,7 +21,7 @@ from scanner.patterns import (
     SINGS_REGEX,
     MACROS,
 )
-from scanner.token_ import Token
+from .token_ import Token
 
 
 class Scanner:
@@ -38,7 +38,7 @@ class Scanner:
         match = re.search("\A(__func__|__line__)", input_string)
         if match is not None:
             next_index = match.span()[1]
-            if next_index<len(input_string) and 'A' <= input_string[next_index] <= 'z':
+            if next_index < len(input_string) and 'A' <= input_string[next_index] <= 'z':
                 return None
             return Token("", match.group())
 
@@ -127,7 +127,7 @@ class Scanner:
             if token is None:
                 token = self._maximum_match(token, self._starts_with_sign(input_string))
         if token.define is not None:
-            return self._get_first_token(token.token_value+input_string[len(token.define):])
+            return self._get_first_token(token.token_value + input_string[len(token.define):])
         return token, input_string[len(token.token_value):]
 
     def get_tokens(self):
@@ -153,7 +153,7 @@ class Scanner:
                     continue
                 if self._is_macro(token.token_value):
                     self._define_macro(line)
-                    line= ""
+                    line = ""
                     continue
                 tokens.append(token)
         return tokens
