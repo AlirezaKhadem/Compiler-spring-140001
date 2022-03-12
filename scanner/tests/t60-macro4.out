@@ -1,0 +1,41 @@
+import
+T_STRINGLITERAL "define.d"
+__func__
+T_ID func
+T_STRINGLITERAL "func"
+__line__
+T_ID line
+T_STRINGLITERAL "DEFINE"
+T_STRINGLITERAL "define"
+Print
+(
+T_INTLITERAL 2
++
+T_INTLITERAL 3
+)
+T_ID singleX
+[
+T_INTLITERAL 2
+]
+T_ID xxxx
+[
+T_INTLITERAL 2
+]
+T_ID doubleX
+(
+T_ID singleX
+)
+T_ID a
+T_ID tripleX
+T_ID b
+T_ID axb
+T_ID axxb
+T_ID axxxb
+T_ID abx
+T_ID xba
+T_ID anString
+=
+T_STRINGLITERAL "xyzxxtxxx"
+T_ID anotherString
+=
+T_STRINGLITERAL "xx"

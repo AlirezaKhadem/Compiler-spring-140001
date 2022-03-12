@@ -1,0 +1,31 @@
+
+define CLASS class
+define PROGRAM Program
+define OPEN_PARANTHESES (
+define CLOSE_PARANTHESES )
+define START_CURLY_BRACE { 
+define END_CURLY_BRACE }
+define VOID void
+define MAIN main  
+define SEMICOLON ;
+define I_DCL int i
+define FOR100 for(i = 0; i < 100; i++)
+define PRINT_I Print(i)
+
+/*
+class Program {
+    void main() {
+        int i;
+        for(i = 0; i < 100; i++) {
+            Print(i);
+        }
+    }
+}
+*/
+
+CLASS PROGRAM START_CURLY_BRACE VOID MAIN
+OPEN_PARANTHESES CLOSE_PARANTHESES START_CURLY_BRACE
+I_DCL SEMICOLON
+FOR100 START_CURLY_BRACE PRINT_I SEMICOLON END_CURLY_BRACE
+END_CURLY_BRACE
+END_CURLY_BRACE

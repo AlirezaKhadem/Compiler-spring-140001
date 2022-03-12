@@ -1,0 +1,6 @@
+import "filename.d"
+
+void printFuncNameAndLine() {
+    Print(__line__);
+    Print(__func__);
+}

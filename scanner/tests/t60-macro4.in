@@ -1,0 +1,27 @@
+import "define.d"
+define DEFINE "DEFINE"
+define DeFiNe 2+ 3
+define x singleX
+define xx doubleX
+define xxx tripleX
+
+__func__
+func
+"func"
+__line__
+line
+DEFINE "define"
+Print(DeFiNe)
+
+x[2]
+xxxx[2]
+xx
+(x)
+a xxx b
+axb
+axxb
+axxxb
+abx
+xba
+anString = "xyzxxtxxx"
+anotherString = "xx"
