@@ -38,9 +38,9 @@ class Scanner:
         match = re.search("\A(__func__|__line__)", input_string)
         if match is not None:
             next_index = match.span()[1]
-            if input_string[next_index] >= 'A' or input_string[next_index] <= 'z':
+            if next_index<len(input_string) and 'A' <= input_string[next_index] <= 'z':
                 return None
-            return Token(match.group(), match.group())
+            return Token("", match.group())
 
     def _starts_with_alphabet(self, input_string):
         match = re.search(IDENTIFIER_REGEX, input_string)
@@ -126,9 +126,8 @@ class Scanner:
                 token = self._maximum_match(token, Token("", input_string[:2]))
             if token is None:
                 token = self._maximum_match(token, self._starts_with_sign(input_string))
-
         if token.define is not None:
-            return token, input_string[len(token.define):]
+            return self._get_first_token(token.token_value+input_string[len(token.define):])
         return token, input_string[len(token.token_value):]
 
     def get_tokens(self):
@@ -137,7 +136,7 @@ class Scanner:
         for line in self.text.splitlines():
             while line != "":
                 if in_comment:
-                    comment_end = re.search('*/', line)
+                    comment_end = re.search('\*/', line)
                     if comment_end is None:
                         line = ""
                         continue
@@ -154,8 +153,8 @@ class Scanner:
                     continue
                 if self._is_macro(token.token_value):
                     self._define_macro(line)
+                    line= ""
                     continue
-
                 tokens.append(token)
         return tokens
 
@@ -180,8 +179,7 @@ class Scanner:
 
     def _define_macro(self, input_line):
         define_key_token, input_line = self._get_first_token(input_line)
-        define_value_token, input_line = self._get_first_token(input_line)
-
+        input_line = input_line.lstrip()
         self.definitions.update({
-            define_key_token.token_value: define_value_token.token_value
+            define_key_token.token_value: input_line
         })
