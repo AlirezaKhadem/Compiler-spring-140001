@@ -93,7 +93,7 @@ grammar= r"""
  ?implements: IMPLEMENTS IDENT mulidents | ""
  ?mulidents: "," IDENT mulidents | ""
  ?field: accessmode | variabledecl | accessmode functiondecl
- ?accessmode: PRIVATE | PROTECTED | PUBLIC | ""
+ ?accessmode: PRIVATE | PROTECTED | PUBLIC | "" 
  ?interfacedecl: INTERFACE IDENT "{" prototype* "}"
  ?stmtblock: "{" variabledecl* stmt* "}"
  ?stmt: (expr)? ";" | ifstmt | whilestmt | forstmt | breakstmt | continuestmt | reutrnstmt | printstmt | stmtblock
