@@ -18,8 +18,7 @@ from compiler.scanner.patterns import (
     FIRST_INT16_REGEX,
     FIRST_DOUBLE_REGEX,
     FIRST_DOUBEL_PATERN_SCI,
-    SINGS_REGEX,
-    MACROS,
+    SINGS_REGEX
 )
 from .token_ import Token
 
@@ -31,16 +30,6 @@ class Scanner:
 
     def set_text(self, text):
         self.text = text
-
-    @staticmethod
-    # Checks if s can be interpreted beginning with a REVERSED_REGEX word.
-    def _starts_with_underline(input_string):
-        match = re.search("\A(__func__|__line__)", input_string)
-        if match is not None:
-            next_index = match.span()[1]
-            if next_index < len(input_string) and 'A' <= input_string[next_index] <= 'z':
-                return None
-            return Token("", match.group())
 
     def _starts_with_alphabet(self, input_string):
         match = re.search(IDENTIFIER_REGEX, input_string)
@@ -114,8 +103,6 @@ class Scanner:
         else:
             if input_string[0].isalpha():
                 token = self._maximum_match(token, self._starts_with_alphabet(input_string))
-            if input_string[0] == '_':
-                token = self._maximum_match(token, self._starts_with_underline(input_string))
             if input_string[0].isdigit():
                 token = self._maximum_match(token, self._starts_with_digit(input_string))
             if input_string[0] == '"':
@@ -151,10 +138,6 @@ class Scanner:
                 if self._is_start_of_multiline_comment(token.token_value):
                     in_comment = True
                     continue
-                if self._is_macro(token.token_value):
-                    self._define_macro(line)
-                    line = ""
-                    continue
                 tokens.append(token)
         return tokens
 
@@ -169,17 +152,8 @@ class Scanner:
 
         return new_token
 
-    @staticmethod
-    def _is_macro(token_value):
-        return token_value in MACROS
 
     @staticmethod
     def _is_start_of_multiline_comment(token_value):
         return token_value == '/*'
 
-    def _define_macro(self, input_line):
-        define_key_token, input_line = self._get_first_token(input_line)
-        input_line = input_line.lstrip()
-        self.definitions.update({
-            define_key_token.token_value: input_line
-        })
