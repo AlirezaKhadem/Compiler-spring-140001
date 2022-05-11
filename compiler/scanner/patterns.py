@@ -82,42 +82,52 @@ SPECIAL_CHARACTERS = {
 
 grammar= r"""
  ?start: macro* decl+
- ?macro: IMPORT STRINGCONSTANT
+ ?macro: "import" STRINGCONSTANT
  ?decl: variabledecl | functiondecl | classdecl | interfacedecl
- ?variabledecl: VARIABLE
+ ?variabledecl: variable
  ?variable: type IDENT
- ?type: INT | BOOL | DOUBLE | STRING | IDENT | type "[]"
- ?functiondecl: type IDENT "(" formals ")" stmtblock | VOID IDENT "(" formals ")" stmtblock
+ ?type: "int" | "bool" | "double" | "string" | IDENT | type "[]"
+ ?functiondecl: type IDENT "(" formals ")" stmtblock | "void" IDENT "(" formals ")" stmtblock
  ?formals: formals "," variable | variable | ""
- ?classdecl: CLASS IDENT (EXTENDS IDENT)? implements "{" field* "}" 
- ?implements: IMPLEMENTS IDENT mulidents | ""
+ ?classdecl: "class" IDENT ("extends" IDENT)? implements "{" field* "}" 
+ ?implements: "implements" IDENT mulidents | ""
  ?mulidents: "," IDENT mulidents | ""
  ?field: accessmode | variabledecl | accessmode functiondecl
- ?accessmode: PRIVATE | PROTECTED | PUBLIC | "" 
- ?interfacedecl: INTERFACE IDENT "{" prototype* "}"
+ ?accessmode: "private" | "protected" | "public" | "" 
+ ?interfacedecl: "interface" IDENT "{" prototype* "}"
  ?stmtblock: "{" variabledecl* stmt* "}"
  ?stmt: (expr)? ";" | ifstmt | whilestmt | forstmt | breakstmt | continuestmt | reutrnstmt | printstmt | stmtblock
- ?ifstmt: IF "(" expr ")" stmt (ELSE stmt)?
- ?whilestmt: WHILE "(" expr ")" stmt
- ?forstmt: FOR "(" (expr)? ";" expr ";" (expr)? ")" stmt
- ?returnstmt: RETURN (expr)? ";"
- ?breakstmt: BREAK ";"
- ?continuestmt: CONTINUE ";"
+ ?ifstmt: "if" "(" expr ")" stmt ("else" stmt)?
+ ?whilestmt: "while" "(" expr ")" stmt
+ ?forstmt: "for" "(" (expr)? ";" expr ";" (expr)? ")" stmt
+ ?returnstmt: "return" (expr)? ";"
+ ?breakstmt: "break" ";"
+ ?continuestmt: "continue" ";"
  ?printstmt: "print(" manyexpr ");"
  ?manyexpr: expr | manyexpr "," expr
- ?expr: lvalue "=" expr | cosntant | lvalue | THIS | call | 
+ ?expr: lvalue "=" expr | cosntant | lvalue | "this" | call | 
  "(" expr ")" | expr "+" expr | expr "-" expr | expr "*" expr | expr "/" expr | 
  expr "%" expr | "-" expr | expr "<" expr | expr "<=" expr | expr ">" expr |
  expr ">" expr | expr "==" expr | expr "!=" expr | expr "&&" expr |
- expr "||" expr | "!" expr | READINTEGER "()" | READLINE "()" | NEW IDENT |
- NEWARRAY "(" expr "," type ")" | ITOD "(" expr ")" | DTOI "(" expr ")" |
- ITOB "(" expr ")" | BTOI "(" expr ")"
+ expr "||" expr | "!" expr | "ReadInteger()" | "ReadLine()" | "new" IDENT |
+ "NewArray" "(" expr "," type ")" | "itod" "(" expr ")" | "dtoi" "(" expr ")" |
+ "itob" "(" expr ")" | "btoi" "(" expr ")"
  ?lvalue: IDENT | expr "." IDENT | expr "[" expr "]"
  ?call: IDENT "(" actuals ")" | expr "." IDENT "(" actuals ")"
  ?actuals: manyexprs | ""
- ?constant: INTCONSTANT | DOUBLECONSTANT | BOOLCONSTANT | STRINGCONSTANT | NULL
- 
+ ?constant: INTCONSTANT | DOUBLECONSTANT | BOOLCONSTANT | STRINGCONSTANT | "null"
+  
  %import common.WS
- 
+ %import common.INT
+ %import common.HEXDIGIT
+ %import common.DIGIT
+ %import common.FLOAT
+ %import common.ESCAPED_STRING
+ %import common.LETTER
+ INTCONSTANT: INT | "0x" HEXDIGIT+ | "0X" HEXDIGIT+
+ DOUBLECONSTANT: FLOAT
+ BOOLCONSTANT: "true" | "false"
+ STRINGCONSTANT: ESCAPED_STRING
+ IDENT: LETTER (LETTER | DIGIT | "_")*
  %ignore WS
 """
