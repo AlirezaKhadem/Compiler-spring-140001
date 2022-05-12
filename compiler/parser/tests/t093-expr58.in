@@ -1,0 +1,3 @@
+void main () {
+    NewArray (expr, id[]);
+}

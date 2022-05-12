@@ -1,0 +1,4 @@
+void main () {
+    -this;
+    this + that;
+}

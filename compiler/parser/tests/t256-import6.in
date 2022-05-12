@@ -1,0 +1,5 @@
+import "t256_file1.in"
+
+void main() {
+    int a = 2 + 3;
+}

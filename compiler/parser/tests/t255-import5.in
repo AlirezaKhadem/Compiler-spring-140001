@@ -1,0 +1,7 @@
+import "t255_file1.in"
+
+void main() {
+    A a;
+    a = new A;
+    a.a = 4;
+}

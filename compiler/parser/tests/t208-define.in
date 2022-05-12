@@ -1,0 +1,9 @@
+define PI 3.141592
+define FOR_100_WITH_I for (i = 0; i < 100; i += 1)
+
+int main() {
+	Print("Printing PI for 100 times...");
+	FOR_100_WITH_I {
+		Print(PI);
+	}
+}

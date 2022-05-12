@@ -1,0 +1,6 @@
+import SeemsWrongButItsOK
+define SeemsWrongButItsOK "filename.d"
+
+int main() {
+	Print(SeemsWrongButItsOK, " Imported!");
+}

@@ -1,0 +1,20 @@
+class Person {
+    string first_name;
+    string last_name;
+    int age;
+
+    /*
+    TODO: add some initialization code to this poor thing
+    */
+    void report() {
+        if (this.age < 18)
+            return;
+        Print(first_name, " ", last_name);
+    }
+}
+
+int main() {
+    Person p;
+    p = new Person;
+    p.report(); // undefined behaviour
+}

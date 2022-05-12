@@ -1,0 +1,5 @@
+int func() {
+    __func__();
+}
+
+void __func__() {}

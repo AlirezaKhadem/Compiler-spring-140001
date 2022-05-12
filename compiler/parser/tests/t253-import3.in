@@ -1,0 +1,13 @@
+import "t253_file1.in"
+
+int main() {
+    C c;
+    A a;
+    c = new C;
+    c.do_job();
+
+    a = c;
+    c = null;
+
+    return 99;
+}

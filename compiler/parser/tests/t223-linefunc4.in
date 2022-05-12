@@ -1,0 +1,8 @@
+string emptyFuncName = __func__;
+int lineInGlobal = __line;
+void line() {
+    int line1 = __line__;
+    int line2 = __line + line1;
+    Print(__func__ + emptyFuncName);
+    Print("I should have Syntax errors!")
+}

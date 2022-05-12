@@ -1,0 +1,3 @@
+void main () {
+    id = new id [ 2 + 4 ];
+}
