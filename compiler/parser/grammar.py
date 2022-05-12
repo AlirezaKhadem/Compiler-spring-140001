@@ -25,14 +25,11 @@ grammar = r"""
     
     ?formals: formals COMMA variable 
             | variable 
-            | EPSILON
+            | 
     
     ?classdecl: CLASS IDENT (EXTENDS IDENT)? implements? LEFTACO field* RIGHTACO
     
-    ?implements: IMPLEMENTS IDENT mulidents
-    
-    ?mulidents: COMMA IDENT mulidents 
-              | EPSILON
+    ?implements: IMPLEMENTS IDENT (COMMA IDENT)*
     
     ?field: accessmode 
           | variabledecl 
@@ -41,7 +38,7 @@ grammar = r"""
     ?accessmode: PRIVATE 
                | PROTECTED 
                | PUBLIC 
-               | EPSILON 
+               | 
     
     ?interfacedecl: INTERFACE IDENT LEFTACO prototype* RIGHTACO
     
@@ -56,7 +53,7 @@ grammar = r"""
          | forstmt 
          | breakstmt 
          | continuestmt 
-         | reutrnstmt 
+         | returnstmt 
          | printstmt 
          | stmtblock
     
@@ -114,8 +111,8 @@ grammar = r"""
     ?call: IDENT LEFTPAR actuals RIGHTPAR 
          | expr DOT IDENT LEFTPAR actuals RIGHTPAR
     
-    ?actuals: manyexprs 
-            | EPSILON
+    ?actuals: manyexpr
+            | 
     
     ?constant: INTCONSTANT 
              | DOUBLECONSTANT 
@@ -135,7 +132,6 @@ grammar = r"""
     STRINGCONSTANT: ESCAPED_STRING "\n"
     IDENT: "_" LETTER (LETTER | DIGIT | "_")* "\n"
     
-    EPSILON: ""
     INTT: "int\n"
     BOOL: "bool\n"
     DOUBLE: "double\n"
