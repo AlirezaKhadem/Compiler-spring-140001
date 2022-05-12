@@ -1,0 +1,5 @@
+import "t251_file1.in"
+
+void main() {
+    add(3, 5);
+}

@@ -1,0 +1,6 @@
+import "t252_file1.in"
+import "t252_file2.in"
+
+void main() {
+    add(1, 10) + minus(50, 25);
+}

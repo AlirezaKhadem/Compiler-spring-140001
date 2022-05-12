@@ -1,0 +1,5 @@
+void func() {
+    string functionName;
+    functionName = __func__;
+    Print(functionName + "__func__");
+}

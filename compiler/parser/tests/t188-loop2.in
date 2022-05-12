@@ -1,0 +1,13 @@
+void main(){
+    int continue;
+    int x;
+
+    while (True){
+        x = ReadInteger();
+        if (x != 0){
+            continue;
+        }
+        continue = 10;
+        break;
+    }
+}

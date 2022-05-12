@@ -1,0 +1,6 @@
+void main () {
+    while ( break_ );
+    while ( expr ) a = a + 1;
+    while ( expr ) {}
+    while ( expr ) { if ( expr ) ; }
+}

@@ -1,0 +1,8 @@
+class A{
+    int private x;
+}
+
+int main(){
+    A a;
+    a = new A;
+}

@@ -1,0 +1,7 @@
+define FILENAME "filename.d"
+import FILENAME 
+define PI 3.141592
+
+int main() {
+	Print(PI);
+}

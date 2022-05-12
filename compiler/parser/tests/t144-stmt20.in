@@ -1,0 +1,5 @@
+void main () {
+    for ( expr ; expr ; ) ;
+    for ( ; expr ; expr ) ;
+    for ( expr ; expr ; expr ) ;
+}

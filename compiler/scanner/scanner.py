@@ -17,7 +17,7 @@ from compiler.scanner.patterns import (
     FIRST_INT10_REGEX,
     FIRST_INT16_REGEX,
     FIRST_DOUBLE_REGEX,
-    FIRST_DOUBEL_PATERN_SCI,
+    FIRST_DOBBED_PATTERN_SCI,
     SINGS_REGEX
 )
 from .token_ import Token
@@ -43,7 +43,7 @@ class Scanner:
 
     @staticmethod
     def _starts_with_digit(input_string):
-        digit_regs = [FIRST_DOUBEL_PATERN_SCI, FIRST_DOUBLE_REGEX, FIRST_INT16_REGEX, FIRST_INT10_REGEX]
+        digit_regs = [FIRST_DOBBED_PATTERN_SCI, FIRST_DOUBLE_REGEX, FIRST_INT16_REGEX, FIRST_INT10_REGEX]
         types = ["T_DOUBLELITERAL", "T_INTLITERAL"]
         for i in range(4):
             match = re.search(digit_regs[i], input_string)
