@@ -38,7 +38,7 @@ grammar = r"""
  ?constant: INTCONSTANT | DOUBLECONSTANT | BOOLCONSTANT | STRINGCONSTANT | NULL
 
  %import common.INT
- %import common.HEXDIGIT
+ %import comm   on.HEXDIGIT
  %import common.DIGIT
  %import common.FLOAT
  %import common.ESCAPED_STRING
