@@ -3,24 +3,24 @@ grammar = r"""
  ?start: macro* decl+
  ?macro: IMPORT STRINGCONSTANT
  ?decl: variabledecl | functiondecl | classdecl | interfacedecl
- ?variabledecl: variable
+ ?variabledecl: variable SEMICOLON
  ?variable: type IDENT
  ?type: INT | BOOL | DOUBLE | STRING | IDENT | type LEFTCRO RIGHTCRO
  ?functiondecl: type IDENT LEFTPAR formals RIGHTPAR stmtblock | VOID IDENT LEFTPAR formals RIGHTPAR stmtblock
  ?formals: formals COMMA variable | variable | ""
- ?classdecl: CLASS IDENT (EXTENDS IDENT)? implements LEFTACO field* RIGHTACO
- ?implements: IMPLEMENTS IDENT mulidents | ""
+ ?classdecl: CLASS IDENT (EXTENDS IDENT)? implements? LEFTACO field* RIGHTACO
+ ?implements: IMPLEMENTS IDENT mulidents
  ?mulidents: COMMA IDENT mulidents | ""
  ?field: accessmode | variabledecl | accessmode functiondecl
  ?accessmode: PRIVATE | PROTECTED | PUBLIC | "" 
  ?interfacedecl: INTERFACE IDENT LEFTACO prototype* RIGHTACO
- ?prototype: type IDENT RIGHTPAR formals LEFTPAR SEMICOLON
+ ?prototype: type IDENT RIGHTPAR formals LEFTPAR SEMICOLON | VOID IDENT RIGHTPAR formals LEFTPAR SEMICOLON 
  ?stmtblock: RIGHTACO variabledecl* stmt* LEFTACO
- ?stmt: (expr)? SEMICOLON | ifstmt | whilestmt | forstmt | breakstmt | continuestmt | reutrnstmt | printstmt | stmtblock
+ ?stmt: expr? SEMICOLON | ifstmt | whilestmt | forstmt | breakstmt | continuestmt | reutrnstmt | printstmt | stmtblock
  ?ifstmt: IF LEFTPAR expr RIGHTPAR stmt (ELSE stmt)?
  ?whilestmt: WHILE LEFTPAR expr RIGHTPAR stmt
- ?forstmt: FOR LEFTPAR (expr)? SEMICOLON expr SEMICOLON (expr)? RIGHTPAR stmt
- ?returnstmt: RETURN (expr)? SEMICOLON
+ ?forstmt: FOR LEFTPAR expr? SEMICOLON expr SEMICOLON expr? RIGHTPAR stmt
+ ?returnstmt: RETURN expr? SEMICOLON
  ?breakstmt: BREAK SEMICOLON
  ?continuestmt: CONTINUE SEMICOLON
  ?printstmt: PRINT LEFTPAR manyexpr RIGHTPAR SEMICOLON
@@ -47,7 +47,7 @@ grammar = r"""
  DOUBLECONSTANT: FLOAT "\n"
  BOOLCONSTANT: ("true" | "false") "\n"
  STRINGCONSTANT: ESCAPED_STRING "\n"
- IDENT: LETTER (LETTER | DIGIT | "_")* "\n"
+ IDENT: "_"     LETTER (LETTER | DIGIT | "_")* "\n"
  INT: "int\n"
  BOOL: "bool\n"
  DOUBlE: "double\n"
