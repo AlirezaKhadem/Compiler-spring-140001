@@ -11,13 +11,15 @@ def run(input_file_address: str) -> str:
     with open(input_file_address) as input_file:
         scanner.set_text(input_file.read())
 
+    tokens= []
     for token in scanner.get_tokens():
         if token.token_type == 'T_ID':
             result += '_'
+        tokens.append(token.token_value)
         result += token.token_value + '\n'
 
-    print(result)
-    parser = Lark(grammar=grammar, start=start_non_terminal)
+    print(len(tokens))
+    parser = Lark(grammar=grammar, start=start_non_terminal, parser="lalr")
     return parser.parser(result)
 
 

@@ -13,7 +13,7 @@ grammar = r"""
     
     ?variable: type IDENT
     
-    ?type: INT 
+    ?type: INTT
          | BOOL 
          | DOUBLE 
          | STRING 
@@ -136,9 +136,9 @@ grammar = r"""
     IDENT: "_" LETTER (LETTER | DIGIT | "_")* "\n"
     
     EPSILON: ""
-    INT: "int\n"
+    INTT: "int\n"
     BOOL: "bool\n"
-    DOUBlE: "double\n"
+    DOUBLE: "double\n"
     STRING: "string\n"
     VOID: "void\n"
     LEFTCRO: "[\n"
