@@ -95,6 +95,7 @@ grammar= r"""
  ?field: accessmode | variabledecl | accessmode functiondecl
  ?accessmode: "private" | "protected" | "public" | "" 
  ?interfacedecl: "interface" IDENT "{" prototype* "}"
+ ?prototype: type IDENT "(" formals ");"
  ?stmtblock: "{" variabledecl* stmt* "}"
  ?stmt: (expr)? ";" | ifstmt | whilestmt | forstmt | breakstmt | continuestmt | reutrnstmt | printstmt | stmtblock
  ?ifstmt: "if" "(" expr ")" stmt ("else" stmt)?
