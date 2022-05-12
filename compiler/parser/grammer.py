@@ -1,53 +1,106 @@
 start_non_terminal = "start"
 grammar = r"""
  ?start: macro* decl+
- ?macro: "import" STRINGCONSTANT
+ ?macro: IMPORT STRINGCONSTANT
  ?decl: variabledecl | functiondecl | classdecl | interfacedecl
  ?variabledecl: variable
  ?variable: type IDENT
- ?type: "int" | "bool" | "double" | "string" | IDENT | type "[]"
- ?functiondecl: type IDENT "(" formals ")" stmtblock | "void" IDENT "(" formals ")" stmtblock
- ?formals: formals "," variable | variable | ""
- ?classdecl: "class" IDENT ("extends" IDENT)? implements "{" field* "}" 
- ?implements: "implements" IDENT mulidents | ""
- ?mulidents: "," IDENT mulidents | ""
+ ?type: INT | BOOL | DOUBLE | STRING | IDENT | type LEFTCRO RIGHTCRO
+ ?functiondecl: type IDENT LEFTPAR formals RIGHTPAR stmtblock | VOID IDENT LEFTPAR formals RIGHTPAR stmtblock
+ ?formals: formals COMMA variable | variable | ""
+ ?classdecl: CLASS IDENT (EXTENDS IDENT)? implements LEFTACO field* RIGHTACO
+ ?implements: IMPLEMENTS IDENT mulidents | ""
+ ?mulidents: COMMA IDENT mulidents | ""
  ?field: accessmode | variabledecl | accessmode functiondecl
- ?accessmode: "private" | "protected" | "public" | "" 
- ?interfacedecl: "interface" IDENT "{" prototype* "}"
- ?prototype: type IDENT "(" formals ");"
- ?stmtblock: "{" variabledecl* stmt* "}"
- ?stmt: (expr)? ";" | ifstmt | whilestmt | forstmt | breakstmt | continuestmt | reutrnstmt | printstmt | stmtblock
- ?ifstmt: "if" "(" expr ")" stmt ("else" stmt)?
- ?whilestmt: "while" "(" expr ")" stmt
- ?forstmt: "for" "(" (expr)? ";" expr ";" (expr)? ")" stmt
- ?returnstmt: "return" (expr)? ";"
- ?breakstmt: "break" ";"
- ?continuestmt: "continue" ";"
- ?printstmt: "print(" manyexpr ");"
- ?manyexpr: expr | manyexpr "," expr
- ?expr: lvalue "=" expr | cosntant | lvalue | "this" | call | 
- "(" expr ")" | expr "+" expr | expr "-" expr | expr "*" expr | expr "/" expr | 
- expr "%" expr | "-" expr | expr "<" expr | expr "<=" expr | expr ">" expr |
- expr ">" expr | expr "==" expr | expr "!=" expr | expr "&&" expr |
- expr "||" expr | "!" expr | "ReadInteger()" | "ReadLine()" | "new" IDENT |
- "NewArray" "(" expr "," type ")" | "itod" "(" expr ")" | "dtoi" "(" expr ")" |
- "itob" "(" expr ")" | "btoi" "(" expr ")"
- ?lvalue: IDENT | expr "." IDENT | expr "[" expr "]"
- ?call: IDENT "(" actuals ")" | expr "." IDENT "(" actuals ")"
+ ?accessmode: PRIVATE | PROTECTED | PUBLIC | "" 
+ ?interfacedecl: INTERFACE IDENT LEFTACO prototype* RIGHTACO
+ ?prototype: type IDENT RIGHTPAR formals LEFTPAR SEMICOLON
+ ?stmtblock: RIGHTACO variabledecl* stmt* LEFTACO
+ ?stmt: (expr)? SEMICOLON | ifstmt | whilestmt | forstmt | breakstmt | continuestmt | reutrnstmt | printstmt | stmtblock
+ ?ifstmt: IF LEFTPAR expr RIGHTPAR stmt (ELSE stmt)?
+ ?whilestmt: WHILE LEFTPAR expr RIGHTPAR stmt
+ ?forstmt: FOR LEFTPAR (expr)? SEMICOLON expr SEMICOLON (expr)? RIGHTPAR stmt
+ ?returnstmt: RETURN (expr)? SEMICOLON
+ ?breakstmt: BREAK SEMICOLON
+ ?continuestmt: CONTINUE SEMICOLON
+ ?printstmt: PRINT LEFTPAR manyexpr RIGHTPAR SEMICOLON
+ ?manyexpr: expr | manyexpr COMMA expr
+ ?expr: lvalue SET expr | constant | lvalue | THIS | call | 
+ LEFTPAR expr RIGHTPAR | expr PLUS expr | expr MINUS expr | expr MULT expr | expr DIV expr | 
+ expr MOD expr | MINUS expr | expr LESS expr | expr LESQ expr | expr MORE expr |
+ expr MORQ expr | expr EQUALS expr | expr NEQ expr | expr AND expr |
+ expr OR expr | NOT expr | READINTEGER LEFTPAR RIGHTPAR | READLINE LEFTPAR RIGHTPAR | NEW IDENT |
+ NEWARRAY LEFTPAR expr COMMA type RIGHTPAR | ITOD LEFTPAR expr RIGHTPAR | DTOI LEFTPAR expr RIGHTPAR |
+ ITOB LEFTPAR expr RIGHTPAR | BTOI LEFTPAR expr RIGHTPAR
+ ?lvalue: IDENT | expr DOT IDENT | expr LEFTCRO expr RIGHTCRO
+ ?call: IDENT LEFTPAR actuals RIGHTPAR | expr DOT IDENT LEFTPAR actuals RIGHTPAR
  ?actuals: manyexprs | ""
- ?constant: INTCONSTANT | DOUBLECONSTANT | BOOLCONSTANT | STRINGCONSTANT | "null"
+ ?constant: INTCONSTANT | DOUBLECONSTANT | BOOLCONSTANT | STRINGCONSTANT | NULL
 
- %import common.WS
  %import common.INT
  %import common.HEXDIGIT
  %import common.DIGIT
  %import common.FLOAT
  %import common.ESCAPED_STRING
  %import common.LETTER
- INTCONSTANT: INT | "0x" HEXDIGIT+ | "0X" HEXDIGIT+
- DOUBLECONSTANT: FLOAT
- BOOLCONSTANT: "true" | "false"
- STRINGCONSTANT: ESCAPED_STRING
- IDENT: LETTER (LETTER | DIGIT | "_")*
- %ignore WS
+ INTCONSTANT: (INT | "0x" HEXDIGIT+ | "0X" HEXDIGIT+) "\n"
+ DOUBLECONSTANT: FLOAT "\n"
+ BOOLCONSTANT: ("true" | "false") "\n"
+ STRINGCONSTANT: ESCAPED_STRING "\n"
+ IDENT: LETTER (LETTER | DIGIT | "_")* "\n"
+ INT: "int\n"
+ BOOL: "bool\n"
+ DOUBlE: "double\n"
+ STRING: "string\n"
+ VOID: "void\n"
+ LEFTCRO: "[\n"
+ RIGHTCRO: "]\n"
+ LEFTPAR: "(\n"
+ RIGHTPAR: ")\n"
+ LEFTACO: "{\n"
+ RIGHTACO: "}\n"
+ IMPORT: "import\n"
+ COMMA: ",\n"
+ CLASS: "class\n"
+ EXTENDS: "extends\n"
+ IMPLEMENTS: "implements\n"
+ PUBLIC: "public\n"
+ PRIVATE: "private\n"
+ PROTECTED: "protected\n"
+ INTERFACE: "interface\n"
+ SEMICOLON: ";\n"
+ IF: "if\n"
+ ELSE: "else\n"
+ WHILE: "while\n"
+ FOR: "for\n"
+ RETURN: "return\n"
+ BREAK: "break\n"
+ CONTINUE: "continue\n"
+ PRINT: "print\n"
+ SET: "=\n"
+ EQUALS: "==\n"
+ THIS: "this\n"
+ PLUS: "+\n"
+ MINUS: "-\n"
+ MULT: "*\n"
+ DIV: "/\n"
+ MOD: "%\n"
+ LESS: "<\n"
+ MORE: ">\n"
+ LESQ: "<=\n"
+ MORQ: ">=\n"
+ NEQ: "!=\n"
+ AND: "&&\n"
+ OR: "||\n"
+ NOT: "!\n"
+ READLINE: "ReadLine\n"
+ READINTEGER: "ReadInteger\n"
+ NEW: "new\n"
+ NEWARRAY: "NewArray\n"
+ ITOD: "itod\n"
+ ITOB: "itob\n"
+ BTOI: "btoi\n"
+ DTOI: "dtoi\n"
+ DOT: ".\n"
+ NULL: "null\n"
 """
