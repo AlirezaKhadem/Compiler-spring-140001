@@ -45,7 +45,7 @@ grammar = r"""
     ?prototype: type IDENT RIGHTPAR formals LEFTPAR SEMICOLON 
               | VOID IDENT RIGHTPAR formals LEFTPAR SEMICOLON 
     
-    ?stmtblock: RIGHTACO variabledecl* stmt* LEFTACO
+    ?stmtblock: LEFTACO variabledecl* stmt* RIGHTACO
     
     ?stmt: expr? SEMICOLON 
          | ifstmt 
