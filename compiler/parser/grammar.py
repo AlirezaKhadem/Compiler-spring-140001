@@ -42,8 +42,8 @@ grammar = r"""
     
     ?interfacedecl: INTERFACE IDENT LEFTACO prototype* RIGHTACO
     
-    ?prototype: type IDENT RIGHTPAR formals LEFTPAR SEMICOLON 
-              | VOID IDENT RIGHTPAR formals LEFTPAR SEMICOLON 
+    ?prototype: type IDENT LEFTPAR formals RIGHTPAR SEMICOLON 
+              | VOID IDENT LEFTPAR formals RIGHTPAR SEMICOLON 
     
     ?stmtblock: LEFTACO variabledecl* stmt* RIGHTACO
     
