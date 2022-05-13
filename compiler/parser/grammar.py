@@ -10,16 +10,14 @@ grammar = r"""
     
     ?variable: type IDENT
     
-    ?functiondecl: variable LEFTPAR formals RIGHTPAR stmtblock
+    ?functiondecl: type IDENT LEFTPAR formals RIGHTPAR stmtblock
                  | VOID IDENT LEFTPAR formals RIGHTPAR stmtblock
                  
     ?classdecl: CLASS IDENT (EXTENDS IDENT)? implements? LEFTACO field* RIGHTACO
     
     ?implements: IMPLEMENTS IDENT (COMMA IDENT)*
     
-    ?field: accessmode 
-          | variabledecl 
-          | accessmode functiondecl
+    ?field: accessmode (variabledecl | functiondecl)
     
     ?accessmode: PRIVATE 
                | PROTECTED 
