@@ -4,29 +4,15 @@ grammar = r"""
     
     ?macro: IMPORT STRINGCONSTANT
     
-    ?decl: variabledecl 
-         | functiondecl 
-         | classdecl 
-         | interfacedecl
+    ?decl: variabledecl | functiondecl | classdecl | interfacedecl
     
     ?variabledecl: variable SEMICOLON
     
     ?variable: type IDENT
     
-    ?type: INTT
-         | BOOL 
-         | DOUBLE 
-         | STRING 
-         | IDENT 
-         | type LEFTCRO RIGHTCRO
-    
-    ?functiondecl: type IDENT LEFTPAR formals RIGHTPAR stmtblock 
+    ?functiondecl: variable LEFTPAR formals RIGHTPAR stmtblock
                  | VOID IDENT LEFTPAR formals RIGHTPAR stmtblock
-    
-    ?formals: formals COMMA variable 
-            | variable 
-            | 
-    
+                 
     ?classdecl: CLASS IDENT (EXTENDS IDENT)? implements? LEFTACO field* RIGHTACO
     
     ?implements: IMPLEMENTS IDENT (COMMA IDENT)*
@@ -44,7 +30,7 @@ grammar = r"""
     
     ?prototype: type IDENT LEFTPAR formals RIGHTPAR SEMICOLON 
               | VOID IDENT LEFTPAR formals RIGHTPAR SEMICOLON 
-    
+                 
     ?stmtblock: LEFTACO variabledecl* stmt* RIGHTACO
     
     ?stmt: expr? SEMICOLON 
@@ -56,8 +42,6 @@ grammar = r"""
          | returnstmt 
          | printstmt 
          | stmtblock
-    
-    ?ifstmt: IF LEFTPAR expr RIGHTPAR stmt (ELSE stmt)?
     
     ?whilestmt: WHILE LEFTPAR expr RIGHTPAR stmt
     
@@ -71,15 +55,13 @@ grammar = r"""
     
     ?printstmt: PRINT LEFTPAR manyexpr RIGHTPAR SEMICOLON
     
-    ?manyexpr: expr 
-             | manyexpr COMMA expr
+    ?ifstmt: IF LEFTPAR expr RIGHTPAR stmt (ELSE stmt)?
     
-    ?expr: lvalue SET expr
+    ?expr: lvalue (SET expr)?
          | constant 
-         | lvalue 
-         | THIS 
-         | call 
-         | LEFTPAR expr RIGHTPAR 
+         | THIS
+         | call
+         | LEFTPAR expr RIGHTPAR
          | expr PLUS expr 
          | expr MINUS expr 
          | expr MULT expr 
@@ -103,22 +85,32 @@ grammar = r"""
          | DTOI LEFTPAR expr RIGHTPAR 
          | ITOB LEFTPAR expr RIGHTPAR 
          | BTOI LEFTPAR expr RIGHTPAR
+         
+    ?call: IDENT LEFTPAR actuals RIGHTPAR 
+         | expr DOT IDENT LEFTPAR actuals RIGHTPAR
+         
+    ?actuals: manyexpr
+            |
     
+    ?manyexpr: expr 
+             | manyexpr COMMA expr
+             
     ?lvalue: IDENT 
            | expr DOT IDENT 
            | expr LEFTCRO expr RIGHTCRO
-    
-    ?call: IDENT LEFTPAR actuals RIGHTPAR 
-         | expr DOT IDENT LEFTPAR actuals RIGHTPAR
-    
-    ?actuals: manyexpr
-            | 
     
     ?constant: INTCONSTANT 
              | DOUBLECONSTANT 
              | BOOLCONSTANT 
              | STRINGCONSTANT 
              | NULL 
+                 
+    ?formals: formals COMMA variable 
+            | variable 
+            | 
+    
+    ?type: (INTT | BOOL | DOUBLE | STRING | IDENT) (LEFTCRO RIGHTCRO)?
+         
     %import common.INT
     %import common.HEXDIGIT
     %import common.DIGIT
@@ -187,4 +179,4 @@ grammar = r"""
     DTOI: "dtoi\n"
     DOT: ".\n"
     NULL: "null\n"
-"""
+    """
