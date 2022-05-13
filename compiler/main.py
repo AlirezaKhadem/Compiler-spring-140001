@@ -36,6 +36,24 @@ if __name__ == '__main__':
     ?functiondecl: type IDENT LEFTPAR formals RIGHTPAR stmtblock
                  | VOID IDENT LEFTPAR formals RIGHTPAR stmtblock
                  
+    ?classdecl: CLASS IDENT (EXTENDS IDENT)? implements? LEFTACO field* RIGHTACO
+    
+    ?implements: IMPLEMENTS IDENT (COMMA IDENT)*
+    
+    ?field: accessmode 
+          | variabledecl 
+          | accessmode functiondecl
+    
+    ?accessmode: PRIVATE 
+               | PROTECTED 
+               | PUBLIC 
+               | 
+    
+    ?interfacedecl: INTERFACE IDENT LEFTACO prototype* RIGHTACO
+    
+    ?prototype: type IDENT RIGHTPAR formals RIGHTPAR SEMICOLON 
+              | VOID IDENT LEFTPAR formals RIGHTPAR SEMICOLON 
+                 
     ?stmtblock: LEFTACO variabledecl* stmt* RIGHTACO
     
     ?stmt: ifstmt
