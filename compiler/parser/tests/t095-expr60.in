@@ -1,4 +1,0 @@
-void main () {
-    (expr * expr)[call() + 2] = (expr != null);
-    (w / k)[index % 4] = id.id * int_max;
-}

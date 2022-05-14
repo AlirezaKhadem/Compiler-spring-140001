@@ -1,5 +1,0 @@
-void main () {
-    array1 = NewArray(expr, int);
-    array2 = NewArray (2 + 4, string);
-    array3 = NewArray (count(), double);
-}

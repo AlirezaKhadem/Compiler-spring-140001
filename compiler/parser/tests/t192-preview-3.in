@@ -1,6 +1,0 @@
-public class clazz() {
-    int maman;
-    void baba() {
-        return;
-    }
-}

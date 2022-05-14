@@ -1,3 +1,0 @@
-void main() {
-    Print(__Line__ + __line__);
-}

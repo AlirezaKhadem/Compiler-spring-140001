@@ -1,5 +1,0 @@
-int main() {
-    int a;
-    a = 2;
-    dummyVar=(a+__line__)*line;
-}

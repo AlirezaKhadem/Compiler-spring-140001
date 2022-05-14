@@ -1,5 +1,0 @@
-void main () {
-    if ( expr ) if ( expr ) ; else ; else ;
-    if ( expr ) { if ( expr ) call_saul(); else {} } else {}
-    if ( expr = expr ) ; else ;
-}

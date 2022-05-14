@@ -1,5 +1,0 @@
-import "invalid/file/#!name"
-
-int main() {
-	
-}

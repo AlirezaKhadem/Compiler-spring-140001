@@ -1,5 +1,0 @@
-int main() {
-
-}
-
-import "right_import, wrong place"

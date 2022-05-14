@@ -1,3 +1,0 @@
-void main () {
-    for ( ; expr ; ) while ( expr ) if ( expr ) ;
-}

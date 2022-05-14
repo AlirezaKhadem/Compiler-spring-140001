@@ -1,8 +1,0 @@
-int getSomeValue() {
-    return something;
-}
-
-void main () {
-    int[] x;
-    x[getSomeValue()] *= getSomeValue();
-}

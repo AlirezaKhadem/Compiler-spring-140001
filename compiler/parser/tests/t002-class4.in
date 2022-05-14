@@ -1,6 +1,0 @@
-
-class Sweet {}
-
-class Popsicle Extends Sweet {
-    void pop() {}
-}

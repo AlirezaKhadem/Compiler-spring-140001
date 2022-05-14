@@ -1,3 +1,0 @@
-void main () {
-    paradox = ((condition <= max) != !(condition > max)) = = true;
-}

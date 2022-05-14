@@ -1,4 +1,0 @@
-class id {
-    void func() {}
-    int field;
-}

@@ -1,6 +1,0 @@
-define folaan another_folaan
-
-int main() {
-	int folaan;
-	folaan = 5;
-}

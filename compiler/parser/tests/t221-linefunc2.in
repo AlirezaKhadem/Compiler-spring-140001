@@ -1,3 +1,0 @@
-void __func__line__() {
-    Print("I don\'t have valid func name")
-}

@@ -15,11 +15,17 @@ def run(input_file_address: str) -> str:
         if token.token_type == 'T_ID':
             result += '_'
         result += token.token_value + '\n'
-
     parser = Lark(grammar=grammar, start=start_non_terminal, parser="lalr")
-    return parser.parser.parse(result)
+    print(result)
+    parser.parser.parse(result)
+    try:
+        parsed= parser.parser.parse(result)
+        print("OK")
+        return parsed
+    except:
+        print("Syntax Error")
 
 
 if __name__ == '__main__':
-    file_address = 'parser/tests/t001-class1.in'
+    file_address = 'parser/tests/t042-expr3.in'
     run(file_address)

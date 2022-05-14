@@ -1,7 +1,0 @@
-import "filename1.d"
-import "filename2.d"
-import "filename3.d"
-
-class Program {
-
-}
