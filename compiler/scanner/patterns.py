@@ -24,6 +24,7 @@ REVERSED_REGEX = {
     "Print",
     "private",
     "public",
+    "protected",
     "ReadInteger",
     "ReadLine",
     "return",

@@ -17,7 +17,7 @@ int main() {
         if (y != x) break;
     }
 
-    Print("Result is ", y);
+    print("Result is ", y);
 
     return 0;
 }

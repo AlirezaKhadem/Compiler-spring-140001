@@ -3,7 +3,7 @@ class Base {
     protected int counter;
     public void action() {}
     private void base_print() {
-        Print("Base.print()");
+        print("Base.print()");
         continue;
         continue;
     }
@@ -17,7 +17,7 @@ class A {
     }
 
     void print() {
-        Print("a.print()");
+        print("a.print()");
     }
 }
 
