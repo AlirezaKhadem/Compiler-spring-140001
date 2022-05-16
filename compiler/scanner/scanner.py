@@ -8,6 +8,8 @@ Team members:
 # Compiler Project ***Phase 1*** Sharif University of Technology
 
 """
+from copy import deepcopy
+
 __author__ = 'Matin Amini, Alireza Khadem'
 
 import re
@@ -152,8 +154,18 @@ class Scanner:
 
         return new_token
 
-
     @staticmethod
     def _is_start_of_multiline_comment(token_value):
         return token_value == '/*'
 
+    @staticmethod
+    def add_underline_to_identifiers(tokens):
+        copy_tokens = deepcopy(tokens)
+
+        result = ''
+        for token in copy_tokens:
+            if token.token_type == 'T_ID':
+                result += '_'
+            result += token.token_value + '\n'
+
+        return result

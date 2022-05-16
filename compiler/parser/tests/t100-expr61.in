@@ -1,0 +1,4 @@
+void main () {
+    (sum(1, 2, 3) + mult_).value = null + 5;
+    test.status = (2).type == INTEGER;
+}

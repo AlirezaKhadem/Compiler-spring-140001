@@ -1,0 +1,6 @@
+void main () {
+    break;
+    BREAK;
+    { break ; }
+    while ( true ) break;
+}

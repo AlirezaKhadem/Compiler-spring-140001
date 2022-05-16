@@ -1,4 +1,4 @@
-start_non_terminal = "start"
+start = "start"
 grammar = r"""
     ?start: macro* decl+
     
@@ -150,7 +150,7 @@ grammar = r"""
     RETURN: "return\n"
     BREAK: "break\n"
     CONTINUE: "continue\n"
-    PRINT: "print\n"
+    PRINT: "Print\n"
     SET: "=\n"
     EQUALS: "==\n"
     THIS: "this\n"

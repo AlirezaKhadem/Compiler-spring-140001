@@ -1,0 +1,73 @@
+interface Sounding {
+    string makeSound();
+}
+
+interface Flying {
+    void fly(int altitude);
+}
+
+class Animal {
+    string name;
+    int size; // in centimeters
+
+    int getSize() {
+        return this.size;
+    }
+}
+
+class Lion extends Animal implements Sounding {
+    string makeSound() {
+        return "Roar";
+    }
+
+    void initialize() {
+        this.name = "Lion";
+        this.size = 250;
+    }
+}
+
+class Sparrow extends Animal implements Flying, Sounding {
+    string makeSound() {
+        return "Chirp";
+    }
+
+    void fly(int altitude) {
+        Print("Flying at ", altitude, " meters high!");
+    }
+
+    void initialize() {
+        this.name = "Sparrow";
+        this.size = 7;
+    }
+}
+
+int main() {
+    Animal a;
+    Sparrow s;
+    Lion l;
+
+    Sounding sd;
+    Flying fl;
+
+    s = new Sparrow;
+    s.initialize();
+
+    l = new Lion;
+    l.initialize();
+
+    sd = s;
+    Print("The sound of this one is: ", s.makeSound());
+
+    sd = l;
+    Print("And the sound of this one is: ", s.makeSound());
+
+    fl = s;
+    Print("This one can fly! Here from itself: ")
+    fl.fly(10);
+
+    Print("The size of first one is: ", s.getSize());
+    a = l;
+    Print("And the size of this one (as an animal) is: ", a.getSize());
+
+    return 0;
+}

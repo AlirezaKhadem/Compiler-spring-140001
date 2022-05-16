@@ -1,0 +1,7 @@
+void main () {
+    while (condition != true) {
+        int i;
+        for (i = 0; i < j; i++)
+            condition = !condition;
+    }
+}

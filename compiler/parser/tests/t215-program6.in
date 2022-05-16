@@ -1,0 +1,8 @@
+interface id {}
+class id implements id {}
+int global;
+void main () {}
+class id extends id {}
+interface id {}
+class id extends id implements id {}
+int sub_global;

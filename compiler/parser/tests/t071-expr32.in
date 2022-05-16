@@ -1,0 +1,13 @@
+void main () {
+    ((a + b) - c) * -b / (- (k || b)) + d;
+    a == b || ! a != b;
+    tautology = (!(condition >= max) == (condition < max)) == true;
+    paradox   = ((condition <= max) != !(condition > max)) != true;
+    h = (a - -3) == a + 3;
+    m = (2 +
+         id +
+         k || b -
+         -c /
+         (x % y) + (y % x)
+        );
+}

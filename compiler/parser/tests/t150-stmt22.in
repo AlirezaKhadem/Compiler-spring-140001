@@ -1,0 +1,4 @@
+void main () {
+    for ( ; expr ; ) a = b;
+    for ( ; expr ; ) {}
+}
