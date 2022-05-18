@@ -168,4 +168,4 @@ class Scanner:
                 result += '_'
             result += token.token_value + '\n'
 
-        return result
+        return result.replace("[\n]","[]")

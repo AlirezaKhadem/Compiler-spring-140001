@@ -9,3 +9,5 @@ def run(input_file_address: str) -> str:
         return True
     elif result == "Syntax Error":
         return False
+
+

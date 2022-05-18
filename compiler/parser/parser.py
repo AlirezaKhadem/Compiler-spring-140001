@@ -12,10 +12,9 @@ __author__ = 'Matin Amini, Alireza Khadem'
 
 from lark import Lark
 
-
 class Parser:
     def __init__(self, grammar, start, parser=None):
-        self.parser = Lark(grammar=grammar, start=start, parser=parser)
+        self.parser = Lark(grammar=grammar, start=start, parser="lalr", lexer="contextual")
 
     def parse_tokens(self, tokens):
 
@@ -29,7 +28,6 @@ class Parser:
         from compiler.scanner.scanner import Scanner
         with open(file_address) as file:
             file_context = file.read()
-
         scanner = Scanner(text=file_context)
         return self.parse_tokens(scanner.add_underline_to_identifiers(scanner.get_tokens()))
 
