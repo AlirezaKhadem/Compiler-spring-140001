@@ -2,5 +2,5 @@ int a;
 a = 42;
 
 int main() {
-    print("Global variable 'a' has the answer to the universe: ", a);
+    Print("Global variable 'a' has the answer to the universe: ", a);
 }

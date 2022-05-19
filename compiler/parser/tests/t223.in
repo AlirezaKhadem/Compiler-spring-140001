@@ -11,5 +11,5 @@ void main(){
         y = x;
     }
 
-    print(y);
+    Print(y);
 }

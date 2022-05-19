@@ -45,6 +45,6 @@ int main() {
     ri = ri + (i1 % i2) * (i2 % i1);
     rd = rd + itod((i1 * i2) % (btoi(i1 == i2) * 2 + 2)) * itod(ri) * d2;
 
-    print(rd);
+    Print(rd);
 
 }

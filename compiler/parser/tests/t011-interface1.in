@@ -9,7 +9,7 @@ class Bird implements Flying {
     int altitude;
 
     void fly() {
-        print("Flying Now!");
+        Print("Flying Now!");
     }
 
     int getAltitude() {

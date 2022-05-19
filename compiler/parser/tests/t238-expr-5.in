@@ -21,9 +21,9 @@ int main() {
     ri = dtoi(rd);
     ri = ri * i1 - i2 * i2 * ri;
     rd = ri % 2 + rd * 0.5;
-    print(b1 || b2);
-    print(ri);
-    print(rd);
+    Print(b1 || b2);
+    Print(ri);
+    Print(rd);
 
     i1 = ReadInteger();
     i2 = ReadInteger();
@@ -34,9 +34,9 @@ int main() {
     ri = dtoi(rd);
     ri = ri * i1 - i2 * i2 * ri;
     rd = ri % 2 + rd * 0.5;
-    print(b1 || b2);
-    print(ri);
-    print(rd);
+    Print(b1 || b2);
+    Print(ri);
+    Print(rd);
 
     i1 = ReadInteger();
     i2 = ReadInteger();
@@ -47,9 +47,9 @@ int main() {
     ri = dtoi(rd);
     ri = ri * i1 - i2 * i2 * ri;
     rd = ri % 2 + rd * 0.5;
-    print(b1 || b2);
-    print(ri);
-    print(rd);
+    Print(b1 || b2);
+    Print(ri);
+    Print(rd);
 
     i1 = ReadInteger();
     i2 = ReadInteger();
@@ -60,7 +60,7 @@ int main() {
     ri = dtoi(rd);
     ri = ri * i1 - i2 * i2 * ri;
     rd = ri % 2 + rd * 0.5;
-    print(b1 || b2);
-    print(ri);
-    print(rd);
+    Print(b1 || b2);
+    Print(ri);
+    Print(rd);
 }

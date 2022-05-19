@@ -14,7 +14,7 @@ class Person {
     }
 
     void print() {
-        print("Name: ", name, " Age: ", age);
+        Print("Name: ", name, " Age: ", age);
     }
 
 }

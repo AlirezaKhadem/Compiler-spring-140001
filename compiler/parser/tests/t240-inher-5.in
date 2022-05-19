@@ -8,8 +8,8 @@ class B extends A {
     void test() {
         fA = 1;
         fB = 2;
-        print(fA);
-        print(fB);
+        Print(fA);
+        Print(fB);
     }
 }
 

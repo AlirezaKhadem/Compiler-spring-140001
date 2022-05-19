@@ -8,7 +8,7 @@ int func1(int a, int b) {
 void func2(string a, int r) {
     int i;
     for (i = 1; i <= r; i = i + 1)
-        print(a); // stdout they call it?
+        Print(a); // stdout they call it?
     /* return */
 }
 
