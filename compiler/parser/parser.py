@@ -18,7 +18,6 @@ class Parser:
         self.parser = Lark(grammar=grammar, start=start, parser="lalr", lexer="contextual")
 
     def parse_tokens(self, tokens):
-        self.parser.parser.parse(tokens)
         try:
             self.parser.parser.parse(tokens)
             return "OK"
@@ -45,20 +44,12 @@ class TestParser:
         for file in os.listdir(self.tests_path):
 
             if file[-2:] == 'in':
-                file_address = self.tests_path + 't252-import2.in'
+                file_address = self.tests_path + file
                 try:
                     with open(file_address[:-2] + 'out') as file_:
                         if parser.parse_file(file_address).strip() != file_.read().strip():
-                            print(f'There is a problem parsing file : {file_address}',
-                                  '"' + parser.parse_file(file_address) + '"')
-                            from compiler.scanner.scanner import Scanner
-                            with open(file_address) as file2:
-                                file_context = file2.read()
-                            scanner = Scanner(text=file_context)
-                            for token in scanner.get_tokens():
-                                print(token)
+                            print(f'There is a problem parsing file : {file_address}')
                 except FileNotFoundError:
-                    pass
                     print(f'Error: {file_address[:-2]}out does not exist.')
 
 
