@@ -15,13 +15,13 @@ from lark import Lark
 
 class Parser:
     def __init__(self, grammar, start, parser=None):
-        self.parser = Lark(grammar=grammar, start=start, parser="lalr", lexer="contextual")
+        self.parser = Lark(grammar=grammar, start=start, parser=parser, lexer="contextual")
 
     def parse_tokens(self, tokens):
         try:
             self.parser.parser.parse(tokens)
             return "OK"
-        except :
+        except:
             return "Syntax Error"
 
     def parse_file(self, file_address):
@@ -32,7 +32,7 @@ class Parser:
         return self.parse_tokens(scanner.add_underline_to_identifiers(scanner.get_tokens()))
 
 
-class TestParser:
+class ParserTester:
     def __init__(self, tests_path):
         self.tests_path = tests_path
 
@@ -41,17 +41,19 @@ class TestParser:
         from compiler.parser.grammar import grammar, start
 
         parser = Parser(grammar, start, parser='lalr')
-        for file in os.listdir(self.tests_path):
+        for test_file in os.listdir(self.tests_path):
+            self.check_equality(test_file, parser)
 
-            if file[-2:] == 'in':
-                file_address = self.tests_path + file
-                try:
-                    with open(file_address[:-2] + 'out') as file_:
-                        if parser.parse_file(file_address).strip() != file_.read().strip():
-                            print(f'There is a problem parsing file : {file_address}')
-                except FileNotFoundError:
-                    print(f'Error: {file_address[:-2]}out does not exist.')
+    def check_equality(self, test_file, parser):
+        if test_file[-2:] == 'in':
+            file_address = self.tests_path + test_file
+            try:
+                with open(file_address[:-2] + 'out') as file_:
+                    if parser.parse_file(file_address).strip() != file_.read().strip():
+                        print(f'There is a problem parsing file : {file_address}')
+            except FileNotFoundError:
+                print(f'Error: {file_address[:-2]}out does not exist.')
 
 
 if __name__ == '__main__':
-    TestParser('../parser/tests/').test()
+    ParserTester('../parser/tests/').test()

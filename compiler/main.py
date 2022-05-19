@@ -4,9 +4,9 @@ from compiler.parser.parser import Parser
 
 def run(input_file_address: str) -> str:
     parser = Parser(grammar=grammar, start=start, parser="lalr")
-    result = parser.parse_file(input_file_address)
+    parse_result = parser.parse_file(input_file_address)
 
-    if result == "OK":
+    if parse_result == "OK":
         return True
-    elif result == "Syntax Error":
+    elif parse_result == "Syntax Error":
         return False
