@@ -1,0 +1,11 @@
+interface id {
+    int func () ;
+    string func () ;
+    bool func () ;
+    type func () ;
+
+    int func (type arg, string arg2) ;
+    string func (boolean input) ;
+    boolean func (int parameter, string[] list) ;
+    type func (type other) ;
+}

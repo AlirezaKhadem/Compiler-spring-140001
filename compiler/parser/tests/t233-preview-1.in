@@ -1,0 +1,4 @@
+int main() {
+    btoi(itob(dtoi(itod(78.23))));
+    int btoii;
+}

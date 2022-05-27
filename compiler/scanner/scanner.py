@@ -8,18 +8,19 @@ Team members:
 # Compiler Project ***Phase 1*** Sharif University of Technology
 
 """
+from copy import deepcopy
+
 __author__ = 'Matin Amini, Alireza Khadem'
 
 import re
-
+from compiler.settings import ROOT_DIR
 from compiler.scanner.patterns import (
     IDENTIFIER_REGEX,
     FIRST_INT10_REGEX,
     FIRST_INT16_REGEX,
     FIRST_DOUBLE_REGEX,
-    FIRST_DOUBEL_PATERN_SCI,
-    SINGS_REGEX,
-    MACROS,
+    FIRST_DOBBED_PATTERN_SCI,
+    SINGS_REGEX
 )
 from .token_ import Token
 
@@ -28,19 +29,10 @@ class Scanner:
     def __init__(self, text=None):
         self.text = text
         self.definitions = dict()
+        self.imports = []
 
     def set_text(self, text):
         self.text = text
-
-    @staticmethod
-    # Checks if s can be interpreted beginning with a REVERSED_REGEX word.
-    def _starts_with_underline(input_string):
-        match = re.search("\A(__func__|__line__)", input_string)
-        if match is not None:
-            next_index = match.span()[1]
-            if next_index < len(input_string) and 'A' <= input_string[next_index] <= 'z':
-                return None
-            return Token("", match.group())
 
     def _starts_with_alphabet(self, input_string):
         match = re.search(IDENTIFIER_REGEX, input_string)
@@ -54,12 +46,20 @@ class Scanner:
 
     @staticmethod
     def _starts_with_digit(input_string):
-        digit_regs = [FIRST_DOUBEL_PATERN_SCI, FIRST_DOUBLE_REGEX, FIRST_INT16_REGEX, FIRST_INT10_REGEX]
-        types = ["T_DOUBLELITERAL", "T_INTLITERAL"]
-        for i in range(4):
-            match = re.search(digit_regs[i], input_string)
+        digit_regs = [
+            FIRST_DOBBED_PATTERN_SCI,
+            FIRST_DOUBLE_REGEX,
+            FIRST_INT16_REGEX,
+            FIRST_INT10_REGEX
+        ]
+        types = [
+            "T_DOUBLELITERAL",
+            "T_INTLITERAL"
+        ]
+        for index in range(4):
+            match = re.search(digit_regs[index], input_string)
             if match is not None:
-                return Token(types[int(i / 2)], match.group())
+                return Token(types[int(index / 2)], match.group())
 
     @staticmethod
     def _starts_with_double_quote(input_string):
@@ -68,7 +68,6 @@ class Scanner:
             return
         token = Token("T_STRINGLITERAL", input_string[:match.span()[1] + 1])
         while input_string[match.span()[0]:match.span()[1] + 1] in ['\\"', "\\'"]:
-            print('fuck all of the people in the world')
             input_string = input_string[match.span()[1]:]
             match = re.search('"', input_string[1:])
             if match is None:
@@ -114,8 +113,6 @@ class Scanner:
         else:
             if input_string[0].isalpha():
                 token = self._maximum_match(token, self._starts_with_alphabet(input_string))
-            if input_string[0] == '_':
-                token = self._maximum_match(token, self._starts_with_underline(input_string))
             if input_string[0].isdigit():
                 token = self._maximum_match(token, self._starts_with_digit(input_string))
             if input_string[0] == '"':
@@ -131,10 +128,13 @@ class Scanner:
         return token, input_string[len(token.token_value):]
 
     def get_tokens(self):
+
         tokens = []
         in_comment = False
+        should_import = False
         for line in self.text.splitlines():
             while line != "":
+
                 if in_comment:
                     comment_end = re.search('\*/', line)
                     if comment_end is None:
@@ -143,22 +143,27 @@ class Scanner:
                     else:
                         line = line[comment_end.span()[1]:]
                         in_comment = False
+
+                should_import, tokens, line = self.check_import(should_import, tokens, line)
+
                 token, line = self._get_first_token(line)
                 if token is None:
                     return None
                 if token.token_value in ["", "//"]:
                     break
-                if self._is_start_of_multiline_comment(token.token_value):
+                if self._is_start_of_multi_line_comment(token.token_value):
                     in_comment = True
                     continue
-                if self._is_macro(token.token_value):
-                    self._define_macro(line)
-                    line = ""
-                    continue
+                if token.token_value == 'import':
+                    should_import = True
+
                 tokens.append(token)
+
+        self.import_imports(tokens)
         return tokens
 
-    def _maximum_match(self, prev_token, token):
+    @staticmethod
+    def _maximum_match(prev_token, token):
         if prev_token is None:
             new_token = token
         else:
@@ -170,16 +175,54 @@ class Scanner:
         return new_token
 
     @staticmethod
-    def _is_macro(token_value):
-        return token_value in MACROS
-
-    @staticmethod
-    def _is_start_of_multiline_comment(token_value):
+    def _is_start_of_multi_line_comment(token_value):
         return token_value == '/*'
 
-    def _define_macro(self, input_line):
-        define_key_token, input_line = self._get_first_token(input_line)
-        input_line = input_line.lstrip()
-        self.definitions.update({
-            define_key_token.token_value: input_line
-        })
+    def add_underline_to_identifiers(self, tokens):
+        copy_tokens = deepcopy(tokens)
+
+        result = ''
+        for token in copy_tokens:
+            if self.is_identifier(token=token):
+                result += '_'
+            result += token.token_value + '\n'
+
+        return result.replace("[\n]", "[]")
+
+    @staticmethod
+    def find(file, path):
+        import os
+        for root, dirs, files in os.walk(path):
+            for current_file in files:
+                if file == current_file:
+                    return os.path.join(root, file)
+
+    def check_import(self, should_import, tokens, line):
+        if should_import is True:
+            # todo : improve importing mechanism
+            token, line = self._get_first_token(line)
+            tokens.append(token)
+
+            if self.is_string(token=token):
+                self.imports.append(token.token_value)
+
+            should_import = False
+
+        return should_import, tokens, line
+
+    @staticmethod
+    def is_string(token):
+        return token.token_type == 'T_STRINGLITERAL'
+
+    @staticmethod
+    def is_identifier(token):
+        return token.token_type == 'T_ID'
+
+    def import_imports(self, tokens):
+        for file_name_should_import in self.imports:
+            file_addr_should_import = self.find(file_name_should_import[1:-1], ROOT_DIR)
+
+            with open(file_addr_should_import) as file_should_import:
+                file_should_import_content = file_should_import.read()
+                for token in Scanner(text=file_should_import_content).get_tokens():
+                    tokens.append(token)

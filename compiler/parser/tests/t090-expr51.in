@@ -1,0 +1,4 @@
+void main () {
+    c = new id;
+    new c;
+}

@@ -1,0 +1,4 @@
+void main () {
+    ReadInteger();
+    a = ReadInteger();
+}

@@ -1,14 +1,12 @@
-from compiler.scanner.scanner import Scanner
+from compiler.parser.grammar import grammar, start
+from compiler.parser.parser import Parser
 
 
 def run(input_file_address: str) -> str:
-    result: str = ''
-    scanner = Scanner()
+    parser = Parser(grammar=grammar, start=start, parser="lalr")
+    parse_result = parser.parse_file(input_file_address)
 
-    with open(input_file_address) as input_file:
-        scanner.set_text(input_file.read())
-
-    for token in scanner.get_tokens():
-        result += token.__str__() + '\n'
-
-    return result
+    if parse_result == "OK":
+        return True
+    elif parse_result == "Syntax Error":
+        return False

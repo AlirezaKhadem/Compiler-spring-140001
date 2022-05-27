@@ -1,0 +1,10 @@
+class A{
+    public int x;
+	private double y;
+	protected int z;
+}
+
+int main(){
+    A a;
+    a = new A;
+}

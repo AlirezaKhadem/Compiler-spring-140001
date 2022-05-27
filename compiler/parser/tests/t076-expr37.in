@@ -1,0 +1,3 @@
+void main () {
+    dict(key).id;
+}

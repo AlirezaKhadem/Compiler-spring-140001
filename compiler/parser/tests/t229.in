@@ -1,0 +1,17 @@
+private int x;
+
+class A {
+    protected int a;
+    private int b;
+    private int x;
+    public void B(){
+        x = x + 2;
+    }
+}
+
+void main(){
+    A a;
+
+    A = new A;
+    a.B();
+}

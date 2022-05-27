@@ -1,0 +1,2 @@
+class id extends a implements b {}
+class id extends a implements b, c {}
