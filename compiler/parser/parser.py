@@ -10,7 +10,63 @@ Team members:
 """
 __author__ = 'Matin Amini, Alireza Khadem'
 
-from lark import Lark
+from lark import Lark, Visitor, Tree
+
+class SetParents(Visitor):
+    def __default__(self, tree):
+        for subtree in tree.children:
+            if isinstance(subtree, Tree):
+                subtree.parent = tree
+
+
+class SemanticAnalyzer(Visitor):
+    def __init__(self, classes):
+        super().__init__()
+        self.error = 0
+        self.classes = classes
+
+    def correct_unary_operation_type(self, tree):
+            return (tree.children[0].type == "MINUS" and tree.children[1].exptype in ["INTT","DOUBLE"]) or (tree.children[0].type == "NOT" and tree.children[1].type == "BOOL")
+
+    def correct_binary_operation_type(self, tree):
+        if tree.children[0].exptype != tree.children[2].exptype:
+            return False
+        if tree.children[1].type == "PLUS":
+            return tree.children[0].exptype in ["INTT", "DOUBLE", "STRING"] or "[]" in tree.children[0].exptype
+        return (tree.children[1].type in ["MINUS","MULT","DIV"] and tree.children[0].exptype in ["INTT","DOUBLE"]) or (tree.children[1].type == "MOD" and tree.children[0].exptype == "INTT") or (tree.children[1].type in ["MORE","LESS","MORQ","LESQ"] and tree.children[0].exptype in ["INTT","DOUBLE"]) or (tree.children[1].type in ["AND","OR"] and tree.children[0].type == "BOOL")
+
+    def check_operation(self, tree):
+        if isinstance(tree.children[0], Tree):
+            if tree.children[0].data == 'expr':
+                if not self.correct_binary_operation_type(tree):
+                    self.error = 1
+                    return
+                if tree.children[1].type in ["PLUS","MINUS","MULT","DIV","MOD"]:
+                    tree.exptype = tree.children[0].exptype
+                elif tree.children[1].type in ["MORE","LESS","MORQ","LESQ","EQUALS", "NEQ", "AND", "OR"]:
+                    tree.exptype= "BOOL"
+        elif isinstance(tree.children[1]) and tree.children[1].data=='expr':
+            if not self.correct_unary_operation_type(tree):
+                self.error = 1
+                return
+            tree.exptype = tree.children[1].exptype
+
+    def check_constant(self, tree):
+        if tree.children[0].data == 'constant':
+            type_map= {"INTCONSTANT":"INTT", "BOOLCONSTANT":"BOOL", "DOUBLECONSTANT": "DOUBLE", "STRINGCONSTANT": "STRING"}
+            tree.exptype = type_map[tree.children[0].children[0].type]
+
+
+    def lvalue_type(self, tree):
+        if not isinstance(tree.children[0], Tree):
+            while
+
+    def expr(self, tree):
+        if self.error == 1:
+            return
+        self.check_operation(tree)
+        self.check_constant(tree)
+        self.check_call(tree)
 
 
 class Parser:

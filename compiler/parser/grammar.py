@@ -55,17 +55,17 @@ grammar = r"""
 
     ?ifstmt: IF LEFTPAR expr RIGHTPAR stmt (ELSE stmt)?
 
-    ?expr: lvalue (SET expr)?
-         | constant 
+    ?expr: constant 
          | THIS
          | call
          | LEFTPAR expr RIGHTPAR
-         | expr PLUS expr 
-         | expr MINUS expr 
+         | NOT expr
+         | MINUS expr
          | expr MULT expr 
          | expr DIV expr 
          | expr MOD expr 
-         | MINUS expr 
+         | expr PLUS expr 
+         | expr MINUS expr  
          | expr LESS expr 
          | expr LESQ expr 
          | expr MORQ expr
@@ -73,8 +73,8 @@ grammar = r"""
          | expr EQUALS expr 
          | expr NEQ expr 
          | expr AND expr 
-         | expr OR expr 
-         | NOT expr 
+         | expr OR expr  
+         | lvalue (SET expr)?
          | READINTEGER LEFTPAR RIGHTPAR 
          | READLINE LEFTPAR RIGHTPAR 
          | NEW IDENT 
