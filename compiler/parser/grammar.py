@@ -1,37 +1,37 @@
 start = "start"
 grammar = r"""
-    ?start: macro* decl+
+    start: macro* decl+
 
-    ?macro: IMPORT STRINGCONSTANT
+    macro: IMPORT STRINGCONSTANT
 
-    ?decl: variabledecl | functiondecl | classdecl | interfacedecl
+    decl: variabledecl | functiondecl | classdecl | interfacedecl
 
-    ?variabledecl: variable SEMICOLON
+    variabledecl: variable SEMICOLON
 
-    ?variable: type IDENT
+    variable: type IDENT
 
-    ?functiondecl: type IDENT LEFTPAR formals RIGHTPAR stmtblock
+    functiondecl: type IDENT LEFTPAR formals RIGHTPAR stmtblock
                  | VOID IDENT LEFTPAR formals RIGHTPAR stmtblock
 
-    ?classdecl: CLASS IDENT (EXTENDS IDENT)? implements? LEFTACO field* RIGHTACO
+    classdecl: CLASS IDENT (EXTENDS IDENT)? implements? LEFTACO field* RIGHTACO
 
-    ?implements: IMPLEMENTS IDENT (COMMA IDENT)*
+    implements: IMPLEMENTS IDENT (COMMA IDENT)*
 
-    ?field: accessmode (variabledecl | functiondecl)
+    field: accessmode (variabledecl | functiondecl)
 
-    ?accessmode: PRIVATE 
+    accessmode: PRIVATE 
                | PROTECTED 
                | PUBLIC 
                | 
 
-    ?interfacedecl: INTERFACE IDENT LEFTACO prototype* RIGHTACO
+    interfacedecl: INTERFACE IDENT LEFTACO prototype* RIGHTACO
 
-    ?prototype: type IDENT LEFTPAR formals RIGHTPAR SEMICOLON 
+    prototype: type IDENT LEFTPAR formals RIGHTPAR SEMICOLON 
               | VOID IDENT LEFTPAR formals RIGHTPAR SEMICOLON 
 
-    ?stmtblock: LEFTACO variabledecl* stmt* RIGHTACO
+    stmtblock: LEFTACO variabledecl* stmt* RIGHTACO
 
-    ?stmt: expr? SEMICOLON 
+    stmt: expr? SEMICOLON 
          | ifstmt 
          | whilestmt 
          | forstmt 
@@ -41,21 +41,21 @@ grammar = r"""
          | printstmt 
          | stmtblock
 
-    ?whilestmt: WHILE LEFTPAR expr RIGHTPAR stmt
+    whilestmt: WHILE LEFTPAR expr RIGHTPAR stmt
 
-    ?forstmt: FOR LEFTPAR expr? SEMICOLON expr SEMICOLON expr? RIGHTPAR stmt
+    forstmt: FOR LEFTPAR expr? SEMICOLON expr SEMICOLON expr? RIGHTPAR stmt
 
-    ?returnstmt: RETURN expr? SEMICOLON
+    returnstmt: RETURN expr? SEMICOLON
 
-    ?breakstmt: BREAK SEMICOLON
+    breakstmt: BREAK SEMICOLON
 
-    ?continuestmt: CONTINUE SEMICOLON
+    continuestmt: CONTINUE SEMICOLON
 
-    ?printstmt: PRINT LEFTPAR manyexpr RIGHTPAR SEMICOLON
+    printstmt: PRINT LEFTPAR manyexpr RIGHTPAR SEMICOLON
 
-    ?ifstmt: IF LEFTPAR expr RIGHTPAR stmt (ELSE stmt)?
+    ifstmt: IF LEFTPAR expr RIGHTPAR stmt (ELSE stmt)?
 
-    ?expr: constant 
+    expr: constant 
          | THIS
          | call
          | LEFTPAR expr RIGHTPAR
@@ -84,30 +84,30 @@ grammar = r"""
          | ITOB LEFTPAR expr RIGHTPAR 
          | BTOI LEFTPAR expr RIGHTPAR
 
-    ?call: IDENT LEFTPAR actuals RIGHTPAR 
+    call: IDENT LEFTPAR actuals RIGHTPAR 
          | expr DOT IDENT LEFTPAR actuals RIGHTPAR
 
-    ?actuals: manyexpr
+    actuals: manyexpr
             |
 
-    ?manyexpr: expr 
+    manyexpr: expr 
              | manyexpr COMMA expr
 
-    ?lvalue: IDENT 
+    lvalue: IDENT 
            | expr DOT IDENT 
            | expr LEFTCRO expr RIGHTCRO
 
-    ?constant: INTCONSTANT 
+    constant: INTCONSTANT 
              | DOUBLECONSTANT 
              | BOOLCONSTANT 
              | STRINGCONSTANT 
              | NULL 
 
-    ?formals: formals COMMA variable 
+    formals: formals COMMA variable 
             | variable 
             | 
 
-    ?type: (INTT | BOOL | DOUBLE | STRING | IDENT) DOUBLECRO*
+    type: (INTT | BOOL | DOUBLE | STRING | IDENT) DOUBLECRO*
 
     %import common.INT
     %import common.HEXDIGIT
