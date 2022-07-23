@@ -24,12 +24,20 @@ class SetArguments(Visitor):
             elif ch.data == 'functiondecl':
                 tree.funcs.append(ch)
 
-    def breakstmt(self, tree):
+    def is_in_loop(self, tree):
         parent = tree.parent
         while parent is not None:
-            if parent.data in ['forstmt','whilestmt']:
-                return
-        self.error()
+            if parent.data in ['forstmt', 'whilestmt']:
+                return True
+        return False
+
+    def breakstmt(self, tree):
+        if not self.is_in_loop(tree):
+            self.error()
+
+    def continuestmt(self, tree):
+        if not self.is_in_loop(tree):
+            self.error()
 
     def stmtblock(self, tree):
         i = 1
