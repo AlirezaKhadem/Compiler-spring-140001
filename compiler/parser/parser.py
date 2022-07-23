@@ -24,6 +24,13 @@ class SetArguments(Visitor):
             elif ch.data == 'functiondecl':
                 tree.funcs.append(ch)
 
+    def breakstmt(self, tree):
+        parent = tree.parent
+        while parent is not None:
+            if parent.data in ['forstmt','whilestmt']:
+                return
+        self.error()
+
     def stmtblock(self, tree):
         i = 1
         tree.vars = []
@@ -96,7 +103,7 @@ class SemanticAnalyzer(Visitor):
                 tree.exptype = tree.children[0].exptype
             elif tree.children[1].type in ["MORE", "LESS", "MORQ", "LESQ", "EQUALS", "NEQ", "AND", "OR"]:
                 tree.exptype = "BOOL"
-        elif isinstance(tree.children[1]) and tree.children[1].data == 'expr':
+        elif isinstance(tree.children[1], Tree) and tree.children[1].data == 'expr':
             if not self.correct_unary_operation_type(tree):
                 self.error()
             tree.exptype = tree.children[1].exptype
@@ -111,7 +118,7 @@ class SemanticAnalyzer(Visitor):
 
     def find_ident_decl(self, scope, id, ident_mode):
         if scope.data == 'classdecl':
-            return self.get_field_type(scope, scope.children[1].value, id)
+            return self.get_field_decl(scope, scope.children[1].value, id)
         mode_map = {"variable": scope.vars, "functiondecl": scope.funcs}
         for part in mode_map[ident_mode]:
             for decl in part.find_data(ident_mode):
