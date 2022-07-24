@@ -5,7 +5,6 @@ class Generator(Visitor):
     def __init__(self):
         self.code = []
         self.var_count = -1
-        self.label_count = 0
 
     def operation(self, v1, v2, op):
         if op not in ["MORQ", "LESQ", "EQUALS"]:
@@ -27,20 +26,28 @@ class Generator(Visitor):
         self.code = []
 
     def whilestmt(self, tree):
-        self.add_label()
-        self.add_command(tree.children[1].code, '', '')
-        self.add_command("beq", tree.children[1].var, "goto", self.offset_label(1))
+        self.add_label(tree.label)
+        self.add_command(tree.children[2].code, '', '')
+        self.add_command("beq", tree.children[2].var, "goto", self.index_label(tree.label+1))
         self.add_command(tree.children[4].code, '', '')
-        self.add_command("goto", self.offset_label())
-        self.add_label()
+        self.add_command("goto", self.index_label(tree.label))
+        self.add_label(tree.label+1)
         self.clean(tree)
 
-    def add_label(self):
-        self.label_count += 1
-        self.add_command(self.offset_label()+":")
+    def ifstmt(self, tree):
+        self.add_command(tree.children[2].code,'','')
+        self.add_command("beq",tree.children[2].var, "goto", self.index_label(tree.label))
+        self.add_command(tree.children[4].code,'','')
+        self.add_label(tree.label)
+        if len(tree.children)>4:
+            self.add_command(tree.children[6].code,'','')
+        self.clean(tree)
 
-    def offset_label(self, offset = 0):
-        return "L"+str(self.label_count + offset)
+    def add_label(self, index):
+        self.add_command(self.index_label(index)+":")
+
+    def index_label(self, index):
+        return "L"+str(index)
 
     def expr(self, tree):
         if tree.children[0].data == 'constant':
