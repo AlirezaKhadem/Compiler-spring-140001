@@ -28,9 +28,10 @@ class Generator(Visitor):
 
     def whilestmt(self, tree):
         self.add_label()
-        self.add_command(tree.children[1].code,"beq",tree.children[1].var,"goto",self.offset_label(1))
-        self.add_command(tree.children[4].code)
-        self.add_command("goto",self.offset_label())
+        self.add_command(tree.children[1].code, '', '')
+        self.add_command("beq", tree.children[1].var, "goto", self.offset_label(1))
+        self.add_command(tree.children[4].code, '', '')
+        self.add_command("goto", self.offset_label())
         self.add_label()
         self.clean(tree)
 
@@ -56,10 +57,13 @@ class Generator(Visitor):
         self.var_count += 1
         return "t" + str(self.var_count)
 
-    def add_command(self, *args):
-        for arg in args:
-            self.code = self.code + arg + ' '
-        self.code[-1] = '\n'
+    def add_command(self, *args, sep = ' ', end = '\n'):
+        for i in range(len(args)):
+            self.code = self.code + args[i]
+            if i < len(args)-1:
+                self.code = self.code + sep
+            else:
+                self.code = self.code + end
 
     def set_op(self, v1, v2, op):
         self.add_command(self.next_aux_var(),"=",v1,op,v2)
