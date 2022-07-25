@@ -50,6 +50,17 @@ class SetArguments(Visitor):
 
     def forstmt(self, tree):
         tree.label = self.reserve_label(2)
+        tree.exps = [None]*3
+        for i in range(len(tree.children)):
+            ch = tree.children[i]
+            if isinstance(ch, Tree) and ch.data == 'expr':
+                if i == 2:
+                    tree.exps[0] = ch
+                elif i == len(tree.children)-3:
+                    tree.exps[2] = ch
+                else:
+                    tree.exps[1] = ch
+
 
     def whilestmt(self, tree):
         tree.label = self.reserve_label(2)
@@ -100,10 +111,6 @@ class SemanticAnalyzer(Visitor):
     def __init__(self, classes):
         super().__init__()
         self.classes = classes
-
-    def error(self):
-        print("Semantic Error")
-        exit()
 
     def correct_unary_operation_type(self, tree):
         return (tree.children[0].type == "MINUS" and tree.children[1].exptype in ["INTT", "DOUBLE"]) or (
@@ -235,6 +242,18 @@ class SemanticAnalyzer(Visitor):
         else:
             self.check_operation(tree)
             self.check_set(tree)
+
+    def ifstmt(self, tree):
+        if tree.children[2].exptype != 'BOOL':
+            error()
+
+    def whilestmt(self, tree):
+        if tree.children[2].exptype != 'BOOL':
+            error()
+
+    def forstmt(self, tree):
+        if tree.e2.exptype != 'BOOL':
+            error()
 
     def check_param_match(self, formals, actuals):
         if actuals.data == 'actuals':

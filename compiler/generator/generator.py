@@ -28,15 +28,37 @@ class Generator(Visitor):
     def whilestmt(self, tree):
         self.add_label(tree.label)
         self.add_command(tree.children[2].code, '', '')
-        self.add_command("beq", tree.children[2].var, "goto", self.index_label(tree.label+1))
+        self.add_command("if0", tree.children[2].var, "goto", self.index_label(tree.label+1))
         self.add_command(tree.children[4].code, '', '')
         self.add_command("goto", self.index_label(tree.label))
         self.add_label(tree.label+1)
         self.clean(tree)
 
+    def forstmt(self, tree):
+        if tree.exps[0] is not None:
+            self.add_command(tree.exps[0].code, '', '')
+        self.add_label(tree.label)
+        self.add_command(tree.exps[1].code,'','')
+        self.add_command("if0", tree.exps[1].var, "goto", self.index_label(tree.label+1))
+        self.add_command(tree.children[-1].code,'','')
+        if tree.exps[2] is not None:
+            self.add_command(tree.exps[2].code)
+        self.add_command("goto", self.index_label(tree.label))
+        self.add_label(tree.label+1)
+        self.clean(tree)
+
+    def continuestmt(self, tree):
+        self.add_command("goto", tree.parent_loop.label)
+        self.clean(tree)
+
+    def breakstmt(self, tree):
+        self.add_command("goto", tree.parent_loop.label + 1)
+        self.clean(tree)
+
+
     def ifstmt(self, tree):
         self.add_command(tree.children[2].code,'','')
-        self.add_command("beq",tree.children[2].var, "goto", self.index_label(tree.label))
+        self.add_command("if0",tree.children[2].var, "goto", self.index_label(tree.label))
         self.add_command(tree.children[4].code,'','')
         self.add_label(tree.label)
         if len(tree.children)>4:
