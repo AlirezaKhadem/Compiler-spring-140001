@@ -50,7 +50,22 @@ VOID = 'VOID'
 LVALUE = 'lvalue'
 NULL = 'NULL'
 DOT = 'DOT'
+NEWARRAY = 'NEWARRAY'
+NEW = 'NEW'
+READINTEGER = 'READINTEGER'
+READLINE = 'READLINE'
+ITOD = 'ITOD'
+DTOI = 'DTOI'
+ITOB = 'ITOB'
+BTOI = 'BTOI'
 
+output_type = {READINTEGER: INTT, READLINE: STRING, ITOD: DOUBLE, DTOI: INTT, ITOB: BOOL, BTOI: INTT}
+input_type = {ITOD: INTT, DTOI: DOUBLE, ITOB: INTT, BTOI: BOOL}
+
+
+def error():
+    print("Semantic Error")
+    exit()
 
 def is_equal(data, expected_value):
     return data == expected_value
@@ -58,10 +73,14 @@ def is_equal(data, expected_value):
 
 class SetArguments(Visitor):
 
-    @classmethod
-    def start(cls, tree):
-        cls.initial_tree_vars(tree)
-        cls.initial_tree_funcs(tree)
+
+    def __init__(self):
+        self.var_count = 0
+
+
+    def start(self, tree):
+        self.initial_tree_vars(tree)
+        self.initial_tree_funcs(tree)
         for declaration in tree.find_data(DECLARATION):
             if is_equal(data=declaration.data, expected_value=VARIABLE_DECLARATION):
                 tree.vars.append(declaration.children[0])
@@ -76,35 +95,43 @@ class SetArguments(Visitor):
     def initial_tree_funcs(tree):
         tree.funcs = []
 
-    @classmethod
-    def statement_block(cls, tree):
+    def stmtblock(self, tree):
         iteration_index = 1
-        cls.initial_tree_vars(tree)
+        self.initial_tree_vars(tree)
         while iteration_index < len(tree.children) \
                 and isinstance(tree, Tree) \
                 and tree.children[iteration_index].data == VARIABLE_DECLARATION:
             tree.vars.append(tree.children[iteration_index].children[0])
             iteration_index += 1
+        if tree.parent.data == FUNCTION_DECLARATION:
+            tree.var_needed = self.set_variable_number(tree)
 
-    @classmethod
-    def class_declaration(cls, tree):
-        cls.set_fields(tree)
-        cls.set_class_parents(tree)
+    def set_variable_number(self, tree):
+        var_count = 0
+        for data in ['variable', 'expr']:
+            for ch in tree.find_data(data):
+                var_count += 1
+                ch.var_num = "t"+var_count
+        return var_count
 
-    @classmethod
-    def set_fields(cls, tree):
-        cls.initial_tree_vars(tree)
-        cls.initial_tree_funcs(tree)
+    def classdecl(self, tree):
+        self.set_fields(tree)
+        self.set_class_parents(tree)
+
+
+    def set_fields(self, tree):
+        self.initial_tree_vars(tree)
+        self.initial_tree_funcs(tree)
         for field in tree.find_data(FIELD):
             if is_equal(data=field.children[-1].data, expected_value=FUNCTION_DECLARATION):
                 tree.funcs.append(field)
             else:
                 tree.vars.append(field)
 
-    @classmethod
-    def set_class_parents(cls, tree):
-        cls.set_class_parent_none(tree)
-        cls.initial_interface_parents(tree)
+
+    def set_class_parents(self, tree):
+        self.set_class_parent_none(tree)
+        self.initial_interface_parents(tree)
 
         if not isinstance(tree.children[2], Tree) and is_equal(tree.children[2].value, EXTENDS):
             tree.class_parent = tree.children[3].value
@@ -121,9 +148,9 @@ class SetArguments(Visitor):
     def set_class_parent_none(tree):
         tree.class_parent = None
 
-    @classmethod
-    def function_declaration(cls, tree):
-        cls.initial_inputs(tree)
+
+    def functiondecl(self, tree):
+        self.initial_inputs(tree)
         for formal in tree.find_data(FORMALS):
             for variable in formal.find_data(VARIABLE):
                 tree.inputs.append(variable)
@@ -132,8 +159,50 @@ class SetArguments(Visitor):
     def initial_inputs(tree):
         tree.inputs = []
 
-    @staticmethod
-    def constant(tree):
+
+    def set_parent_loop(self, tree):
+        parent = tree.parent
+        while parent is not None:
+            if parent.data in ['forstmt', 'whilestmt']:
+                tree.parent_loop = parent
+                return
+        error()
+
+
+    def breakstmt(self, tree):
+        self.set_parent_loop(tree)
+
+
+    def continuestmt(self, tree):
+        self.set_parent_loop(tree)
+
+
+    def reserve_label(self, i):
+        self.label += i
+        return self.label - i
+
+
+    def forstmt(self, tree):
+        tree.label = self.reserve_label(2)
+        tree.exps = [None]*3
+        for i in range(len(tree.children)):
+            ch = tree.children[i]
+            if isinstance(ch, Tree) and ch.data == 'expr': 
+                if i == 2:
+                    tree.exps[0] = ch
+                elif i == len(tree.children)-3:
+                    tree.exps[2] = ch
+                else:
+                    tree.exps[1] = ch
+
+    def whilestmt(self, tree):
+        tree.label = self.reserve_label(2)
+        
+    def expr(self, tree):
+        tree.var_num = self.var_count
+        self.var_count += 1
+
+    def constant(self, tree):
         type_map = {
             "INTCONSTANT": INTT,
             "BOOLCONSTANT": BOOL,
@@ -148,14 +217,9 @@ class SemanticAnalyzer(Visitor):
         super().__init__()
         self.classes = classes
 
-    @staticmethod
-    def error():
-        print("Semantic Error")
-        exit()
-
     @classmethod
-    def correct_unary_operation_type(cls, tree):
-        return cls.check_unary_operation_type_condition(tree)
+    def correct_unary_operation_type(self, tree):
+        return self.check_unary_operation_type_condition(tree)
 
     @staticmethod
     def check_unary_operation_type_condition(tree):
@@ -169,8 +233,8 @@ class SemanticAnalyzer(Visitor):
         return is_correct
 
     @classmethod
-    def correct_binary_operation_type(cls, tree):
-        return cls.check_binary_operation_type_condition(tree)
+    def correct_binary_operation_type(self, tree):
+        return self.check_binary_operation_type_condition(tree)
 
     @staticmethod
     def check_binary_operation_type_condition(tree):
@@ -200,7 +264,7 @@ class SemanticAnalyzer(Visitor):
         return is_correct
 
     @classmethod
-    def check_operation(cls, tree):
+    def check_operation(self, tree):
         if isinstance(tree.children[0], Tree) and tree.children[0].data == EXPR:
             if tree.children[1].type in [PLUS, MINUS, MULT, DIV, MOD]:
                 tree.expression_type = tree.children[0].expression_type
@@ -215,12 +279,35 @@ class SemanticAnalyzer(Visitor):
                 OR,
             ]:
                 tree.expression_type = BOOL
-            if not cls.correct_binary_operation_type(tree):
-                cls.error()
+            if not self.correct_binary_operation_type(tree):
+                error()
         elif isinstance(tree.children[1], Tree) and tree.children[1].data == EXPR:
-            if not cls.correct_unary_operation_type(tree):
-                cls.error()
+            if not self.correct_unary_operation_type(tree):
+                error()
             tree.expression_type = tree.children[1].expression_type
+
+    def check_printable_expression(self, tree):
+        if tree.data == 'expr':
+            return tree.expression_type in [BOOL, STRING, INTT]
+        if tree.children[0].data == 'expr':
+            return tree.children[0].expression_type in [BOOL, STRING, INTT]
+        return self.check_printable_expression(tree.children[0]) and self.check_printable_expression(tree.children[2].data)
+
+    def printstmt(self, tree):
+        if not self.check_printable_expression(tree.children[2]):
+            error()
+
+    def ifstmt(self, tree):
+        if tree.children[2].expression_type != 'BOOL':
+            error()
+
+    def whilestmt(self, tree):
+        if tree.children[2].expression_type != 'BOOL':
+            error()
+
+    def forstmt(self, tree):
+        if tree.e2.expression_type != 'BOOL':
+            error()
 
     @staticmethod
     def type_to_string(input_type):
@@ -233,7 +320,7 @@ class SemanticAnalyzer(Visitor):
 
     def find_identifier_declaration(self, scope, identifier, identifier_mode):
         if scope.data == CLASS_DECLARATION:
-            return self.get_field_type(scope, scope.children[1].value, identifier)
+            return self.get_field_declaration(scope, scope.children[1].value, identifier)
         mode_map = {
             VARIABLE: scope.vars,
             FUNCTION_DECLARATION: scope.funcs
@@ -255,7 +342,7 @@ class SemanticAnalyzer(Visitor):
                 if declaration is not None:
                     return declaration
             scope = scope.parent
-        self.error()
+        error()
 
     def get_identifier_type(self, tree):
         if tree is None:
@@ -286,25 +373,26 @@ class SemanticAnalyzer(Visitor):
                     if is_equal(declaration.children[1], identifier):
                         if self.check_access(class_tree, obj_type, field.children[0].value):
                             return declaration
-
             if class_tree.class_parent is None:
-                self.error()
+                error()
             class_tree = self.classes[class_tree.class_parent]
         return None
 
     def lvalue(self, tree):
         if not isinstance(tree.children[0], Tree):
+            variable = self.get_identifier_declaration(tree, tree.children[0].value, VARIABLE)
+            tree.var_num = variable.var_num
             tree.expression_type = self.get_identifier_type(
-                self.get_identifier_declaration(tree, tree.children[0].value, VARIABLE).children[0])
+                variable.children[0])
         elif is_equal(tree.children[1].type, DOT):
             if tree.children[0].expression_type in [INTT, BOOL, DOUBLE, STRING, VOID] or '[' in tree.expression_type:
-                self.error()
+                error()
             tree.expression_type = self.get_identifier_type(
                 self.get_field_declaration(tree, tree.children[0].expression_type, tree.children[2].value, VARIABLE))
             if tree.expression_type is None:
-                self.error()
+                error()
         elif '[' not in tree.children[0].expression_type or tree.children[2].expression_type != INTT:
-            self.error()
+            error()
         else:
             tree.expression_type = tree.children[0].expression_type[:-2]
 
@@ -328,14 +416,31 @@ class SemanticAnalyzer(Visitor):
             if self.is_parent_of(tree.children[0].expression_type, tree.children[2].expression_type):
                 tree.expression_type = VOID
             else:
-                self.error()
+                error()
 
-    def expression(self, tree):
+    def check_array(self, tree):
+        if not isinstance(tree.children[0], Tree) and tree.children[0].type == NEWARRAY and tree.children[2].expression_type != INTT:
+            error()
+
+    def check_others(self, tree):
+        first_word = tree.children[0].type
+        if isinstance(tree.children[0], Tree) or first_word not in [NEW, READINTEGER, READLINE, ITOB, ITOD, BTOI, DTOI]:
+            return
+        if first_word == NEW:
+            tree.expression_type = tree.children[1]
+        else:
+            tree.expression_type = output_type[first_word.type]
+        if first_word in [ITOB, ITOD, DTOI, BTOI] and input_type[first_word] != tree.children[2].expression_type:
+            error()
+
+    def expr(self, tree):
         if is_equal(len(tree.children), 1) and isinstance(tree.children[0], Tree):
             tree.expression_type = tree.children[0].expression_type
         else:
             self.check_operation(tree)
             self.check_set(tree)
+            self.check_array(tree)
+            self.check_others(tree)
 
     def check_param_match(self, formals, actuals):
 
@@ -357,7 +462,7 @@ class SemanticAnalyzer(Visitor):
             return True
         return self.check_param_match(formals.children[0], actuals.children[0])
 
-    def function_declaration(self, tree):
+    def functiondecl(self, tree):
         return_type = self.type_to_string(tree.children[0])
         for statement in tree.find_data(RETURN_STATEMENT):
             if return_type == VOID and len(statement.children) > 2:
@@ -383,6 +488,6 @@ class SemanticAnalyzer(Visitor):
                 FUNCTION_DECLARATION
             )
         if declaration is None or not self.check_param_match(declaration.children[3], tree.children[-2]):
-            self.error()
+            error()
 
         tree.expression_type = self.type_to_string(declaration.children[0])

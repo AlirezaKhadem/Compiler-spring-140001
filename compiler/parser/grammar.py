@@ -59,7 +59,7 @@ grammar = r"""
          | THIS
          | call
          | LEFTPAR expr RIGHTPAR
-         | NOT expr
+         | NOT expr 
          | MINUS expr
          | expr MULT expr 
          | expr DIV expr 
