@@ -81,11 +81,15 @@ class SetArguments(Visitor):
     def start(self, tree):
         self.initial_tree_vars(tree)
         self.initial_tree_funcs(tree)
+        var_index = 0
         for declaration in tree.find_data(DECLARATION):
             if is_equal(data=declaration.data, expected_value=VARIABLE_DECLARATION):
                 tree.vars.append(declaration.children[0])
+                var_index += 1
+                declaration.children[0].var_num = "s" + str(var_index)
             elif is_equal(data=declaration.data, expected_value=FUNCTION_DECLARATION):
                 tree.funcs.append(declaration)
+        tree.var_needed = var_index
 
     @staticmethod
     def initial_tree_vars(tree):
@@ -151,8 +155,13 @@ class SetArguments(Visitor):
 
     def functiondecl(self, tree):
         self.initial_inputs(tree)
+        tree.var_needed = 0
+        tree.var_needed = tree.children[-1].var_needed
+        var_needed = tree.var_needed
         for formal in tree.find_data(FORMALS):
             for variable in formal.find_data(VARIABLE):
+                variable.var_num = "t" + var_needed
+                var_needed += 1
                 tree.inputs.append(variable)
 
     @staticmethod

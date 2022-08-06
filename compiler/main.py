@@ -22,5 +22,5 @@ def set_parents(tree):
 parser = Parser(grammar=grammar, start=start, parser="lalr")
 tree = parser.parser.parse("int\n_v\n(\n)\n{\n_f\n(\n)\n;\n}\n")
 set_parents(tree)
-SetArguments().visit_topdown(tree)
+SetArguments().visit(tree)
 SemanticAnalyzer(get_classes(tree)).visit(tree)
