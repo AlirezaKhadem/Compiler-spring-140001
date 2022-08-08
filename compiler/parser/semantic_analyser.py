@@ -86,10 +86,16 @@ class SetArguments(Visitor):
             if is_equal(data=declaration.data, expected_value=VARIABLE_DECLARATION):
                 tree.vars.append(declaration.children[0])
                 var_index += 1
-                declaration.children[0].var_num = "s" + str(var_index)
+                if self.is_primitive(declaration.children[0].children[0]):
+                    declaration.children[0].var_num = "sp" + str(var_index)
+                else:
+                    declaration.children[0].var_num = "sp" + str(var_index)
             elif is_equal(data=declaration.data, expected_value=FUNCTION_DECLARATION):
                 tree.funcs.append(declaration)
         tree.var_needed = var_index
+
+    def is_primitive(self, type):
+        return len(type.children) == 1 and type.children[0].type in [INTT, BOOL, DOUBLE]
 
     @staticmethod
     def initial_tree_vars(tree):
