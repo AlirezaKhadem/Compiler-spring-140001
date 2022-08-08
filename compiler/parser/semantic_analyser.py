@@ -480,6 +480,7 @@ class SemanticAnalyzer(Visitor):
     def functiondecl(self, tree):
         return_type = self.type_to_string(tree.children[0])
         for statement in tree.find_data(RETURN_STATEMENT):
+            statement.function_parent = tree
             if return_type == VOID and len(statement.children) > 2:
                 return False
             if not is_equal(return_type, VOID):

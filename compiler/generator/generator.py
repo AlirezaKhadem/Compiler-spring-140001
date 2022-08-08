@@ -76,6 +76,7 @@ RA = "$ra"
 F0 = "$f0"
 F1= "$f1"
 F2 = "$f2"
+V0 = "$v0"
 ARRAYMERGE = 'arraymerge'
 S0 = "$s0"
 SEQUALS = "S" + EQUALS
@@ -112,7 +113,8 @@ class Generator(Visitor):
         for ch in tree.children:
             if isinstance(ch, Tree) and ch.data == STATEMENT_BLOCK:
                 self.add_command(ch.code, '', '')
-        self.add_command(FREE, str(tree.var_needed))
+        self.add_command("_end" + tree.children[1].value[:-1]+":")
+        self.add_command(POP, str(tree.var_needed))
         self.clean(tree)
 
     def push_parameters(self, tree):
@@ -127,8 +129,7 @@ class Generator(Visitor):
         if len(tree.children[2].children) > 0:
             self.add_command(PUSH, "RA")
             num_params = self.push_parameters(tree.children[2].children[0])
-        self.add_command(CALL, tree.children[1].value[:-1])
-        self.add_command(POP, str(num_params))
+        self.add_command(CALL, tree.children[0].value[:-1])
         self.clean(tree)
 
     def stmtblock(self, tree):
@@ -145,9 +146,9 @@ class Generator(Visitor):
     def returnstmt(self, tree):
         if len(tree.children) == 3:
             self.add_command(tree.children[1].code)
-            self.add_command(RETURN, tree.children[1])
+            self.add_command(RETURN, tree.function_parent, tree.children[1])
         else:
-            self.add_command(RETURN)
+            self.add_command(RETURN, tree.function_parent)
         self.clean(tree)
 
     def whilestmt(self, tree):
@@ -292,6 +293,8 @@ class final_generator:
             return
         if parts[0] == GOTO:
             self.jump(parts[1])
+        elif parts[0] == RETURN:
+            self.returnn(parts)
         elif parts[0] == IF0:
             self.if0(T0, parts[3])
         elif parts[0] == CALL:
@@ -304,6 +307,11 @@ class final_generator:
             self.pop(parts[1])
         else:
             self.operation(parts)
+
+    def returnn(self, parts):
+        if len(parts) == 3:
+            self.add(V0, T1, ZERO)
+        self.jump("_end" + parts[1])
 
     def call(self, function):
         self.reference_point = 0
@@ -370,6 +378,8 @@ class final_generator:
             self.read_integer(T0)
         elif parts[-1] == READLINE:
             self.read_line(T0)
+        elif parts[-1] == RETURN_VALUE:
+            self.add(T0, V0, V0)
         elif parts[-1] == DOUBLE:
             self.double_operate(parts)
             return
@@ -479,7 +489,7 @@ class final_generator:
         self.addi(T2, ZERO, 4)
         self.mult("$a0", "$a0", T2)
         self.syscall(9)
-        self.add(T0, "$v0", ZERO)
+        self.add(T0, V0, ZERO)
 
     def string_equals(self):
         self.add(T0, ZERO, ZERO)
@@ -521,7 +531,7 @@ class final_generator:
         self.add("$a0", T3, T4)
         self.addi("$a0", "$a0", 1)
         self.syscall(9)
-        self.add(T0, ZERO, "$v0")
+        self.add(T0, ZERO, V0)
         self.addi("$a0", "$a0", -1)
         self.save_word(T0, "$a0")
         self.addi(T5, T0, 4)
@@ -546,7 +556,7 @@ class final_generator:
         self.strlen(T4, T2)
         self.add("$a0", T3, T4)
         self.syscall(9)
-        self.add(T0, ZERO, "$v0")
+        self.add(T0, ZERO, V0)
         self.copy_string(T0, T1, T3)
         self.copy_string(T3, T2, T4)
 
@@ -668,7 +678,7 @@ class final_generator:
 
     def read_integer(self, dest):
         self.syscall(5)
-        self.add(dest, "$v0", ZERO)
+        self.add(dest, V0, ZERO)
 
     def initialize(self):
         self.add_command(".data")
