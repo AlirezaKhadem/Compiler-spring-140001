@@ -81,6 +81,11 @@ ARRAYMERGE = 'arraymerge'
 S0 = "$s0"
 SEQUALS = "S" + EQUALS
 SNEQ = "S" + NEQ
+INTCONSTANT = "INTCONSTANT"
+DOUBLECONSTANT = "DOUBLECONSTANT"
+BOOLCONSTANT = "BOOLCONSTANT"
+STRINGCONSTANT = "STRINGCONSTANT"
+A0 = "$a0"
 
 class Generator(Visitor):
 
@@ -236,7 +241,7 @@ class Generator(Visitor):
                 self.add_command(ch, '', '')
         if isinstance(tree.children[0], Tree):
             if tree.children[0].data == 'constant':
-                self.add_command(tree.var_num, SET, tree.children[0].children[0].value)
+                self.add_command(tree.var_num, SET, tree.children[0].children[0].type, tree.children[0].children[0].value)
             elif tree.children[0].data == EXPR:
                 self.two_op(tree)
             else:
@@ -339,11 +344,11 @@ class final_generator:
         self.add_command(str(self.next_label()) + ":")
 
     def print_string_by_address(self, var):
-        self.load_address("$a0", var)
+        self.load_address(A0, var)
         self.syscall(4)
 
     def print_string(self, var):
-        self.load_word("$a0", var)
+        self.load_word(A0, var)
         self.syscall(4)
 
     def print_bool(self, var):
@@ -356,7 +361,7 @@ class final_generator:
         self.add_label()
 
     def print_int(self, var):
-        self.load_word("$a0", var)
+        self.load_word(A0, var)
         self.syscall(1)
 
     def print_double(self, var):
@@ -380,7 +385,7 @@ class final_generator:
             self.read_line(T0)
         elif parts[-1] == RETURN_VALUE:
             self.add(T0, V0, V0)
-        elif parts[-1] == DOUBLE:
+        elif parts[-1] == DOUBLE or parts[2] == DOUBLECONSTANT:
             self.double_operate(parts)
             return
         elif parts[-2] in [ITOD, DTOI, BTOI, ITOB]:
@@ -424,7 +429,9 @@ class final_generator:
     def double_operate(self, parts):
         self.move_cl(T1, F1)
         self.move_cl(T2, F2)
-        if parts[3] == PLUS:
+        if parts[2] == DOUBLECONSTANT:
+            self.add_command("li.s", F0, parts[3])
+        elif parts[3] == PLUS:
             self.add_command("add.s", F0, F1, F2)
         elif parts[3] == MINUS:
             self.add_command("sub.s", F0, F1, F2)
@@ -445,11 +452,15 @@ class final_generator:
         self.save_word(F0, S0)
 
     def divf(self, dest, r1, r2):
-        self.check_zero_division(r2)
+        self.check_zero_division(r2, False)
         self.add_command("div.s", dest, r1, r2)
 
     def math_operate(self, parts):
-        if parts[3] == AND:
+        if parts[2] in [INTCONSTANT, BOOLCONSTANT]:
+            self.addi(T0, ZERO, parts[-1])
+        elif parts[2] == STRINGCONSTANT:
+            self.save_string(parts[-1])
+        elif parts[3] == AND:
             self.andd(T0, T1, T2)
         elif parts[3] == OR:
             self.orr(T0, T1, T2)
@@ -483,11 +494,31 @@ class final_generator:
             self.new_array()
         elif parts[2] == NOT:
             self.nor(T0, T1, T1)
+        elif parts[3] == LESQ:
+            self.morq(T0, T2, T1)
+        elif parts[3] == MORQ:
+            self.morq(T0, T1, T2)
+
+    def save_string(self, string):
+        string = string[1:-1]
+        self.addi(A0, A0, len(string) + 1)
+        self.syscall(9)
+        self.add(T0, V0, ZERO)
+        self.add(T1, T0, ZERO)
+        for i in range(len(string)):
+            self.addi(T2, ZERO, ord(string[i]))
+            self.save_byte(T2, T1)
+            self.addi(T1, T1, 1)
+        self.save_byte(ZERO, T1)
+
+    def morq(self, dest, r1, r2):
+        self.slt(dest, r1, r2)
+        self.nor(dest, r1, r2)
 
     def new_array(self):
-        self.addi("$a0", T1, 1)
+        self.addi(A0, T1, 1)
         self.addi(T2, ZERO, 4)
-        self.mult("$a0", "$a0", T2)
+        self.mult(A0, A0, T2)
         self.syscall(9)
         self.add(T0, V0, ZERO)
 
@@ -528,12 +559,12 @@ class final_generator:
     def merge_arrays(self):
         self.load_word(T3, T1)
         self.load_word(T4, T2)
-        self.add("$a0", T3, T4)
-        self.addi("$a0", "$a0", 1)
+        self.add(A0, T3, T4)
+        self.addi(A0, A0, 1)
         self.syscall(9)
         self.add(T0, ZERO, V0)
-        self.addi("$a0", "$a0", -1)
-        self.save_word(T0, "$a0")
+        self.addi(A0, A0, -1)
+        self.save_word(T0, A0)
         self.addi(T5, T0, 4)
         self.addi(T3, T3, 4)
         self.addi(T4, T4, 4)
@@ -554,7 +585,7 @@ class final_generator:
     def concat(self):
         self.strlen(T3, T1)
         self.strlen(T4, T2)
-        self.add("$a0", T3, T4)
+        self.add(A0, T3, T4)
         self.syscall(9)
         self.add(T0, ZERO, V0)
         self.copy_string(T0, T1, T3)
@@ -589,14 +620,18 @@ class final_generator:
     def save_byte(self, reg, address, offset=""):
         self.add_command("sb", reg, address, str(offset) + '(' + address + ')')
 
-    def check_zero_division(self, reg):
-        self.bne(reg, ZERO, self.get_label(1))
+    def check_zero_division(self, reg, is_int):
+        if is_int:
+            self.bne(reg, ZERO, self.get_label(1))
+        else:
+            self.add_command("sub.s", "$f4", "$f4", "$f4")
+            self.bne(reg, "$f4", self.get_label(1))
         self.print_string_by_address("zero_div")
         self.syscall(10)
         self.add_label()
 
     def div(self, dest, r1, r2):
-        self.check_zero_division(r2)
+        self.check_zero_division(r2, True)
         self.add_command("div", r1, r2)
         self.add(dest, ZERO, "lo")
 
@@ -617,7 +652,12 @@ class final_generator:
         self.add_command("or", dest, r1, r2)
 
     def load_arguments(self, line):
-        parts = line.split()
+        if '\"' in line:
+            line_except_string = line[:line.find('\"')]
+            parts = line_except_string.split()
+            parts.append(line[len(line_except_string), :])
+        else:
+            parts = line.split()
         for i in range(len(parts)):
             if parts[i][0] in ['s', 't']:
                 if i == 0:
