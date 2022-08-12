@@ -373,7 +373,8 @@ class FinalGenerator:
         self.addi(SP, SP, -4)
 
     def add_label(self):
-        self.add_command(str(self.next_label()) + ":")
+        self.label_index += 1
+        self.add_command(str(self.label_index) + ":")
 
     def print_string_by_address(self, var):
         self.load_address(A0, var)
@@ -413,8 +414,8 @@ class FinalGenerator:
     def operation(self, parts):
         if parts[-1] == READINTEGER:
             self.read_integer(T0)
-        elif parts[-1] == READLINE:
-            self.read_line(T0)
+        #elif parts[-1] == READLINE:
+           # self.read_line(T0)
         elif parts[-1] == RETURN_VALUE:
             self.add(T0, V0, V0)
         elif parts[-1] == DOUBLE or parts[2] == DOUBLECONSTANT:
@@ -696,6 +697,7 @@ class FinalGenerator:
                     self.load_var_or_array("$s" + str(i), parts[i], True)
                 else:
                     self.load_var_or_array("$t" + str(i), parts[i], False)
+        return parts
 
     def load_var_or_array(self, dest, var, by_address):
         parts = var.split('_')
