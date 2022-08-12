@@ -1,6 +1,7 @@
 from compiler.parser.grammar import grammar, start
 from compiler.parser.parser import Parser, SetArguments, SemanticAnalyzer
 from lark import Tree
+from generator import Generator, FinalGenerator
 
 
 def get_classes(tree):
@@ -24,3 +25,8 @@ tree = parser.parser.parse("int\n_v\n(\n)\n{\n_f\n(\n)\n;\n}\n")
 set_parents(tree)
 SetArguments().visit(tree)
 SemanticAnalyzer(get_classes(tree)).visit(tree)
+generator = Generator()
+generator.visit(tree)
+final_generator = FinalGenerator(generator.code)
+final_generator.convert()
+code = final_generator.final_code

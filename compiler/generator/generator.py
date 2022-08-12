@@ -276,7 +276,7 @@ class Generator(Visitor):
                 self.code = self.code + end
 
 
-class final_generator:
+class FinalGenerator:
 
 
     def __init__(self, code):
