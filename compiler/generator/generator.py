@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+"""Compiler
+
+Team members:
+    Matin Amini, 97100321
+    Alireza Khadem, 97100398
+
+# Compiler Project ***Phase 3*** Sharif University of Technology
+
+"""
+
 from lark import Visitor, Tree
 
 VARIABLE_DECLARATION = 'variabledecl'
@@ -74,7 +85,7 @@ T5 = "$t5"
 T6 = "$t6"
 RA = "$ra"
 F0 = "$f0"
-F1= "$f1"
+F1 = "$f1"
 F2 = "$f2"
 V0 = "$v0"
 ARRAYMERGE = 'arraymerge'
@@ -86,6 +97,8 @@ DOUBLECONSTANT = "DOUBLECONSTANT"
 BOOLCONSTANT = "BOOLCONSTANT"
 STRINGCONSTANT = "STRINGCONSTANT"
 A0 = "$a0"
+MAIN = 'main'
+
 
 class Generator(Visitor):
 
@@ -96,7 +109,7 @@ class Generator(Visitor):
         self.add_command(str(tree.var_needed))
         main_tree = None
         for func in tree.funcs:
-            if func.children[1:-1].value == 'main':
+            if self.is_main_function(func):
                 main_tree = func
             else:
                 self.code = self.code + func.code
@@ -105,20 +118,23 @@ class Generator(Visitor):
         else:
             self.code = main_tree.code[1:] + EXIT + '\n' + self.code
 
+    def is_main_function(self, func):
+        return func.children[1:-1].value == MAIN
+
     def clean(self, tree):
-        for ch in tree.children:
-            if isinstance(ch, Tree):
-                ch.code = None
+        for children in tree.children:
+            if isinstance(children, Tree):
+                children.code = None
         tree.code = self.code
         self.code = ""
 
     def functiondecl(self, tree):
-        self.add_command(tree.children[1].value[:-1]+":")
+        self.add_command(tree.children[1].value[:-1] + ":")
         self.add_command(RESERVE, str(tree.var_needed))
-        for ch in tree.children:
-            if isinstance(ch, Tree) and ch.data == STATEMENT_BLOCK:
-                self.add_command(ch.code, '', '')
-        self.add_command("_end" + tree.children[1].value[:-1]+":")
+        for children in tree.children:
+            if isinstance(children, Tree) and children.data == STATEMENT_BLOCK:
+                self.add_command(children.code, '', '')
+        self.add_command("_end" + tree.children[1].value[:-1] + ":")
         self.add_command(POP, str(tree.var_needed))
         self.clean(tree)
 
@@ -138,9 +154,9 @@ class Generator(Visitor):
         self.clean(tree)
 
     def stmtblock(self, tree):
-        for ch in tree.children:
-            if isinstance(ch, Tree) and ch.data == 'stmt':
-                self.add_command(ch.code, '', '')
+        for children in tree.children:
+            if isinstance(children, Tree) and children.data == 'stmt':
+                self.add_command(children.code, '', '')
         self.clean(tree)
 
     def stmt(self, tree):
@@ -236,12 +252,17 @@ class Generator(Visitor):
             tree.parent.var_num = tree.parent.var_num + "_" + tree.children[2].var_num
 
     def expr(self, tree):
-        for ch in tree.children:
-            if isinstance(ch, Tree):
-                self.add_command(ch, '', '')
+        for children in tree.children:
+            if isinstance(children, Tree):
+                self.add_command(children, '', '')
         if isinstance(tree.children[0], Tree):
             if tree.children[0].data == 'constant':
-                self.add_command(tree.var_num, SET, tree.children[0].children[0].type, tree.children[0].children[0].value)
+                self.add_command(
+                    tree.var_num,
+                    SET,
+                    tree.children[0].children[0].type,
+                    tree.children[0].children[0].value,
+                )
             elif tree.children[0].data == EXPR:
                 self.two_op(tree)
             else:
@@ -254,9 +275,20 @@ class Generator(Visitor):
                     self.add_command(tree.var_num, SET, tree.children[2].var_num)
         elif tree.children[0].type in [MINUS, NOT]:
             if tree.children[1].expression_type == DOUBLE:
-                self.add_command(tree.var_num, SET, tree.children[1].type, tree.children[1].var_num, DOUBLE)
+                self.add_command(
+                    tree.var_num,
+                    SET,
+                    tree.children[1].type,
+                    tree.children[1].var_num,
+                    DOUBLE,
+                )
             else:
-                self.add_command(tree.var_num, SET, tree.children[1].type, tree.children[1].var_num)
+                self.add_command(
+                    tree.var_num,
+                    SET,
+                    tree.children[1].type,
+                    tree.children[1].var_num,
+                )
         elif tree.children[0].type == LEFTPAR:
             self.add_command(tree.var_num, SET, tree.children[1].var_num)
         elif tree.children[0].type == NEWARRAY:
@@ -265,6 +297,7 @@ class Generator(Visitor):
             self.add_command(tree.var_num, SET, tree.children[0].type, tree.children[2].var_num)
         elif tree.children[0].type in [READINTEGER, READLINE]:
             self.add_command(tree.var_num, SET, tree.children[0].type)
+
         self.clean(tree)
 
     def add_command(self, *args, sep=' ', end='\n'):
@@ -277,7 +310,6 @@ class Generator(Visitor):
 
 
 class FinalGenerator:
-
 
     def __init__(self, code):
         self.label_index = 0
@@ -323,12 +355,12 @@ class FinalGenerator:
         self.add_command("jal", function)
 
     def pop(self, num):
-        self.addi(SP, SP, (int(num)+self.function_input_space[-1])*4)
+        self.addi(SP, SP, (int(num) + self.function_input_space[-1]) * 4)
         del self.function_input_space[-1]
         self.load_word(RA, SP)
         self.addi(SP, SP, 4)
         self.add_command("jr", RA)
-            
+
     def push(self, var):
         if var == RA:
             self.function_input_space.append(0)
@@ -353,7 +385,7 @@ class FinalGenerator:
 
     def print_bool(self, var):
         self.load_word(T0, var)
-        self.if0(T0, "P" + str(self.label_index+1))
+        self.if0(T0, "P" + str(self.label_index + 1))
         self.print_string_by_address("true")
         self.jump("P" + str(self.label_index + 2))
         self.add_label()
@@ -412,7 +444,7 @@ class FinalGenerator:
             else:
                 self.add(T0, T1, ZERO)
 
-    def get_label(self, offset = 0):
+    def get_label(self, offset=0):
         return "P" + str(self.label_index + offset)
 
     def btoi(self):
@@ -614,7 +646,7 @@ class FinalGenerator:
         self.addi(source, source, 1)
         self.add_label()
 
-    def load_byte(self, reg, address, offset = ""):
+    def load_byte(self, reg, address, offset=""):
         self.add_command("lb", reg, address, str(offset) + '(' + address + ')')
 
     def save_byte(self, reg, address, offset=""):
@@ -661,7 +693,7 @@ class FinalGenerator:
         for i in range(len(parts)):
             if parts[i][0] in ['s', 't']:
                 if i == 0:
-                    self.load_var_or_array("$s"+str(i), parts[i], True)
+                    self.load_var_or_array("$s" + str(i), parts[i], True)
                 else:
                     self.load_var_or_array("$t" + str(i), parts[i], False)
 
@@ -681,7 +713,7 @@ class FinalGenerator:
         elif var[0] == 's':
             self.load_address(dest, var)
         else:
-            self.addi(dest, SP, int(var[1:])*4 + self.reference_point)
+            self.addi(dest, SP, int(var[1:]) * 4 + self.reference_point)
 
     def load_array(self, address, index_var, load_address):
         self.load_var(T4, index_var)
@@ -725,12 +757,12 @@ class FinalGenerator:
         index = self.code.find("\n")
         global_num = int(self.code[:index])
         for i in range(1, global_num + 1):
-            self.add_command("s" + str(i) + ":\t.word\t0" )
+            self.add_command("s" + str(i) + ":\t.word\t0")
         self.add_command("true:\t.asciiz\t\"true\"")
         self.add_command("false:\t.asciiz\t\"false\"")
         self.add_command("bound_error:\t.asciiz\t\"Array index out of bound.\"")
         self.add_command("zero_div:\t.asciiz\t\"Division by zero.\"")
-        self.code = self.code[index+1, :]
+        self.code = self.code[index + 1, :]
         self.add_command(".text")
         self.add_command(".globl main")
 
@@ -743,17 +775,17 @@ class FinalGenerator:
 
     def add(self, dest, r1, r2):
         self.add_command("add", dest, r1, r2)
-        
-    def load_word(self, reg, address, offset = ""):
-        self.add_command('lw', reg, str(offset)+'('+address+')')
 
-    def save_word(self, reg, address, offset = ""):
-        self.add_command('sw', reg, str(offset)+'('+address+')')
+    def load_word(self, reg, address, offset=""):
+        self.add_command('lw', reg, str(offset) + '(' + address + ')')
+
+    def save_word(self, reg, address, offset=""):
+        self.add_command('sw', reg, str(offset) + '(' + address + ')')
 
     def add_command(self, *args):
         self.final_code = self.final_code + args[0]
         for i in range(1, len(args)):
-            if i == len(args)-1:
+            if i == len(args) - 1:
                 self.final_code = self.final_code + args[i] + '\n'
             else:
                 self.final_code = self.final_code + args[i] + ','

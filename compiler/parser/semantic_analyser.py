@@ -67,16 +67,15 @@ def error():
     print("Semantic Error")
     exit()
 
+
 def is_equal(data, expected_value):
     return data == expected_value
 
 
 class SetArguments(Visitor):
 
-
     def __init__(self):
         self.var_count = 0
-
 
     def start(self, tree):
         self.initial_tree_vars(tree)
@@ -121,13 +120,12 @@ class SetArguments(Visitor):
         for data in ['variable', 'expr']:
             for ch in tree.find_data(data):
                 var_count += 1
-                ch.var_num = "t"+var_count
+                ch.var_num = "t" + var_count
         return var_count
 
     def classdecl(self, tree):
         self.set_fields(tree)
         self.set_class_parents(tree)
-
 
     def set_fields(self, tree):
         self.initial_tree_vars(tree)
@@ -137,7 +135,6 @@ class SetArguments(Visitor):
                 tree.funcs.append(field)
             else:
                 tree.vars.append(field)
-
 
     def set_class_parents(self, tree):
         self.set_class_parent_none(tree)
@@ -158,7 +155,6 @@ class SetArguments(Visitor):
     def set_class_parent_none(tree):
         tree.class_parent = None
 
-
     def functiondecl(self, tree):
         self.initial_inputs(tree)
         tree.var_needed = 0
@@ -174,7 +170,6 @@ class SetArguments(Visitor):
     def initial_inputs(tree):
         tree.inputs = []
 
-
     def set_parent_loop(self, tree):
         parent = tree.parent
         while parent is not None:
@@ -183,36 +178,32 @@ class SetArguments(Visitor):
                 return
         error()
 
-
     def breakstmt(self, tree):
         self.set_parent_loop(tree)
 
-
     def continuestmt(self, tree):
         self.set_parent_loop(tree)
-
 
     def reserve_label(self, i):
         self.label += i
         return self.label - i
 
-
     def forstmt(self, tree):
         tree.label = self.reserve_label(2)
-        tree.exps = [None]*3
+        tree.exps = [None] * 3
         for i in range(len(tree.children)):
             ch = tree.children[i]
-            if isinstance(ch, Tree) and ch.data == 'expr': 
+            if isinstance(ch, Tree) and ch.data == 'expr':
                 if i == 2:
                     tree.exps[0] = ch
-                elif i == len(tree.children)-3:
+                elif i == len(tree.children) - 3:
                     tree.exps[2] = ch
                 else:
                     tree.exps[1] = ch
 
     def whilestmt(self, tree):
         tree.label = self.reserve_label(2)
-        
+
     def expr(self, tree):
         tree.var_num = self.var_count
         self.var_count += 1
@@ -306,7 +297,8 @@ class SemanticAnalyzer(Visitor):
             return tree.expression_type in [BOOL, STRING, INTT]
         if tree.children[0].data == 'expr':
             return tree.children[0].expression_type in [BOOL, STRING, INTT]
-        return self.check_printable_expression(tree.children[0]) and self.check_printable_expression(tree.children[2].data)
+        return self.check_printable_expression(tree.children[0]) and self.check_printable_expression(
+            tree.children[2].data)
 
     def printstmt(self, tree):
         if not self.check_printable_expression(tree.children[2]):
@@ -434,7 +426,8 @@ class SemanticAnalyzer(Visitor):
                 error()
 
     def check_array(self, tree):
-        if not isinstance(tree.children[0], Tree) and tree.children[0].type == NEWARRAY and tree.children[2].expression_type != INTT:
+        if not isinstance(tree.children[0], Tree) and tree.children[0].type == NEWARRAY and tree.children[
+            2].expression_type != INTT:
             error()
 
     def check_others(self, tree):
