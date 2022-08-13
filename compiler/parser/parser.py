@@ -12,9 +12,11 @@ __author__ = 'Matin Amini, Alireza Khadem'
 
 from lark import Lark, Visitor, Tree
 
+
 def error():
     print("Semantic Error")
     exit()
+
 
 class SetArguments(Visitor):
 
@@ -50,17 +52,16 @@ class SetArguments(Visitor):
 
     def forstmt(self, tree):
         tree.label = self.reserve_label(2)
-        tree.exps = [None]*3
+        tree.exps = [None] * 3
         for i in range(len(tree.children)):
             ch = tree.children[i]
             if isinstance(ch, Tree) and ch.data == 'expr':
                 if i == 2:
                     tree.exps[0] = ch
-                elif i == len(tree.children)-3:
+                elif i == len(tree.children) - 3:
                     tree.exps[2] = ch
                 else:
                     tree.exps[1] = ch
-
 
     def whilestmt(self, tree):
         tree.label = self.reserve_label(2)
@@ -107,6 +108,7 @@ class SetArguments(Visitor):
                     "STRINGCONSTANT": "STRING"}
         tree.exptype = type_map[tree.children[0].type]
 
+
 class SemanticAnalyzer(Visitor):
     def __init__(self, classes):
         super().__init__()
@@ -114,7 +116,7 @@ class SemanticAnalyzer(Visitor):
 
     def correct_unary_operation_type(self, tree):
         return (tree.children[0].type == "MINUS" and tree.children[1].exptype in ["INTT", "DOUBLE"]) or (
-                    tree.children[0].type == "NOT" and tree.children[1].type == "BOOL")
+                tree.children[0].type == "NOT" and tree.children[1].type == "BOOL")
 
     def correct_binary_operation_type(self, tree):
         if tree.children[0].exptype != tree.children[2].exptype:
@@ -123,10 +125,10 @@ class SemanticAnalyzer(Visitor):
             return tree.children[0].exptype in ["INTT", "DOUBLE", "STRING"] or "[]" in tree.children[0].exptype
         return (tree.children[1].type in ["MINUS", "MULT", "DIV"] and tree.children[0].exptype in ["INTT",
                                                                                                    "DOUBLE"]) or (
-                           tree.children[1].type == "MOD" and tree.children[0].exptype == "INTT") or (
-                           tree.children[1].type in ["MORE", "LESS", "MORQ", "LESQ"] and tree.children[0].exptype in [
-                       "INTT", "DOUBLE"]) or (
-                           tree.children[1].type in ["AND", "OR"] and tree.children[0].type == "BOOL")
+                       tree.children[1].type == "MOD" and tree.children[0].exptype == "INTT") or (
+                       tree.children[1].type in ["MORE", "LESS", "MORQ", "LESQ"] and tree.children[0].exptype in [
+                   "INTT", "DOUBLE"]) or (
+                       tree.children[1].type in ["AND", "OR"] and tree.children[0].type == "BOOL")
 
     def check_operation(self, tree):
         if isinstance(tree.children[0], Tree) and tree.children[0].data == 'expr':
@@ -162,7 +164,7 @@ class SemanticAnalyzer(Visitor):
     def get_ident_decl(self, tree, id, ident_mode):
         block_types = ["classdecl", "start"]
         if ident_mode == "variable":
-            block_types= block_types + ["stmtblock", "functiondecl"]
+            block_types = block_types + ["stmtblock", "functiondecl"]
         scope = tree
         while scope is not None:
             if scope.data in block_types:
@@ -178,12 +180,13 @@ class SemanticAnalyzer(Visitor):
         return self.type_to_string(tree.children[0])
 
     def check_access(self, tree, obj_type, access):
-        if access in ['','PUBLIC']:
+        if access in ['', 'PUBLIC']:
             return True
         if tree.data == 'start':
             return False
         class_name = tree.children[1].value
-        return (access == 'PRIVATE' and class_name == obj_type) or (access == 'PROTECTED' and self.is_parent_of(obj_type, class_name))
+        return (access == 'PRIVATE' and class_name == obj_type) or (
+                    access == 'PROTECTED' and self.is_parent_of(obj_type, class_name))
 
     def get_field_decl(self, tree, obj_type, id, ident_mode):
         while tree.parent is not None and tree.data != 'classdecl':
@@ -205,11 +208,12 @@ class SemanticAnalyzer(Visitor):
         if not isinstance(tree.children[0], Tree):
             tree.exptype = self.get_decl_type(self.get_ident_decl(tree, tree.children[0].value, "variable").children[0])
         elif tree.children[1].type == 'DOT':
-            if tree.children[0].exptype in ["INTT","BOOL","DOUBLE","STRING","VOID"] or '[' in tree.exptype:
+            if tree.children[0].exptype in ["INTT", "BOOL", "DOUBLE", "STRING", "VOID"] or '[' in tree.exptype:
                 error()
-            tree.exptype = self.get_decl_type(self.get_field_decl(tree, tree.children[0].exptype, tree.children[2].value, "variable"))
+            tree.exptype = self.get_decl_type(
+                self.get_field_decl(tree, tree.children[0].exptype, tree.children[2].value, "variable"))
             if tree.exptype is None:
-               error()
+                error()
         elif '[' not in tree.children[0].exptype or tree.children[2].exptype != 'INTT':
             error()
         else:
@@ -218,7 +222,7 @@ class SemanticAnalyzer(Visitor):
     def is_parent_of(self, t1, t2):
         if t1.count('[') != t2.count('['):
             return False
-        if t1.count('[') > 0 or t1 in ["INTT","BOOL","DOUBLE", "STRING"]:
+        if t1.count('[') > 0 or t1 in ["INTT", "BOOL", "DOUBLE", "STRING"]:
             return t1 == t2
         if t2 == "NULL":
             return True
@@ -273,10 +277,10 @@ class SemanticAnalyzer(Visitor):
     def functiondecl(self, tree):
         return_type = self.type_to_string(tree.children[0])
         for stmt in tree.find_data("returnstmt"):
-            if (return_type == "VOID" and len(stmt.children)>2) or (return_type != "VOID" and not self.is_parent_of(return_type, stmt.children[1].exptype)):
+            if (return_type == "VOID" and len(stmt.children) > 2) or (
+                    return_type != "VOID" and not self.is_parent_of(return_type, stmt.children[1].exptype)):
                 return False
         return True
-
 
     def call(self, tree):
         decl = None
@@ -287,8 +291,6 @@ class SemanticAnalyzer(Visitor):
         if decl is None or not self.check_param_match(decl.children[3], tree.children[-2]):
             error()
         tree.exptype = self.type_to_string(decl.children[0])
-
-
 
 
 class Parser:

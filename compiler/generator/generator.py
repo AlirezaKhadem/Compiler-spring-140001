@@ -11,6 +11,10 @@ Team members:
 
 from lark import Visitor, Tree
 
+from compiler.parser.grammar import grammar
+from compiler.parser.grammar import start
+from compiler.parser.parser import Parser, SetArguments, SemanticAnalyzer
+
 VARIABLE_DECLARATION = 'variabledecl'
 FUNCTION_DECLARATION = 'functiondecl'
 CLASS_DECLARATION = 'classdecl'
@@ -414,8 +418,8 @@ class FinalGenerator:
     def operation(self, parts):
         if parts[-1] == READINTEGER:
             self.read_integer(T0)
-        #elif parts[-1] == READLINE:
-           # self.read_line(T0)
+        # elif parts[-1] == READLINE:
+        # self.read_line(T0)
         elif parts[-1] == RETURN_VALUE:
             self.add(T0, V0, V0)
         elif parts[-1] == DOUBLE or parts[2] == DOUBLECONSTANT:
@@ -791,3 +795,60 @@ class FinalGenerator:
                 self.final_code = self.final_code + args[i] + '\n'
             else:
                 self.final_code = self.final_code + args[i] + ','
+
+
+class GeneratorTester:
+    def __init__(self, tests_path):
+        self.tests_path = tests_path
+        self.parser = Parser(grammar=grammar, start=start, parser="lalr")
+
+    def test(self):
+        import os
+
+        for root, dirs, files in os.walk(self.tests_path):
+            for file in files:
+                if file[-2:] == '.d':
+                    with open(root + '/' + file) as input_file:
+                        print(input_file)
+                        input_file_content = input_file.read().lstrip()
+
+                        print(input_file_content)
+
+                        tree = self.get_tree(input_file_content)
+                        self.set_parents(tree)
+
+                        SetArguments().visit(tree)
+                        SemanticAnalyzer(self.get_classes(tree)).visit(tree)
+                        generator = Generator()
+                        generator.visit(tree)
+                        final_generator = FinalGenerator(generator.code)
+                        final_generator.convert()
+                        code = final_generator.final_code
+
+                        print(code)
+
+    def get_tree(self, content):
+        return self.get_parser().parser.parse(content)
+
+    def get_parser(self):
+        return self.parser
+
+    def set_parents(self, tree):
+        if tree.data == 'start':
+            tree.parent = None
+        for children in tree.children:
+            if isinstance(children, Tree):
+                children.parent = tree
+                self.set_parents(children)
+
+    @staticmethod
+    def get_classes(tree):
+        classes = tree.find_pred(lambda v: isinstance(v, Tree) and v.data in ["classdecl", "interfacedecl"])
+        final_classes = {}
+        for class_ in classes:
+            final_classes[class_] = class_.children[1].value
+        return final_classes
+
+
+if __name__ == "__main__":
+    GeneratorTester('../generator/tests/').test()
