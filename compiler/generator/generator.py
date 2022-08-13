@@ -800,7 +800,7 @@ class FinalGenerator:
 class GeneratorTester:
     def __init__(self, tests_path):
         self.tests_path = tests_path
-        self.parser = Parser(grammar=grammar, start=start, parser="lalr")
+        self.parser = Parser(grammar=grammar, start=start, parser='lalr')
 
     def test(self):
         import os
@@ -808,27 +808,23 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    with open(root + '/' + file) as input_file:
-                        print(input_file)
-                        input_file_content = input_file.read().lstrip()
+                    tree, _ = self.get_tree(root + '/' + file)
+                    self.set_parents(tree)
 
-                        print(input_file_content)
+                    SetArguments().visit(tree)
+                    SemanticAnalyzer(self.get_classes(tree)).visit(tree)
 
-                        tree = self.get_tree(input_file_content)
-                        self.set_parents(tree)
+                    generator = Generator()
+                    generator.visit(tree)
 
-                        SetArguments().visit(tree)
-                        SemanticAnalyzer(self.get_classes(tree)).visit(tree)
-                        generator = Generator()
-                        generator.visit(tree)
-                        final_generator = FinalGenerator(generator.code)
-                        final_generator.convert()
-                        code = final_generator.final_code
+                    final_generator = FinalGenerator(generator.code)
+                    final_generator.convert()
+                    code = final_generator.final_code
 
-                        print(code)
+                    print(code)
 
-    def get_tree(self, content):
-        return self.get_parser().parser.parse(content)
+    def get_tree(self, file_address):
+        return self.get_parser().parse_file(file_address)
 
     def get_parser(self):
         return self.parser

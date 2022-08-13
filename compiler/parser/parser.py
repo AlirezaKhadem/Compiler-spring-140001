@@ -299,10 +299,9 @@ class Parser:
 
     def parse_tokens(self, tokens):
         try:
-            self.parser.parser.parse(tokens)
-            return "OK"
+            return self.parser.parser.parse(tokens), "OK"
         except:
-            return "Syntax Error"
+            return None, "Syntax Error"
 
     def parse_file(self, file_address):
         from compiler.scanner.scanner import Scanner
