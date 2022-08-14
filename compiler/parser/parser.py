@@ -26,9 +26,10 @@ class SetArguments(Visitor):
     def start(self, tree):
         tree.vars = []
         tree.funcs = []
-        for ch in tree.find_data("decl"):
+        for node in tree.find_data("decl"):
+            ch = node.children[0]
             if ch.data == 'variabledecl':
-                tree.vars.append(ch.children[0])
+                tree.vars.append(ch)
             elif ch.data == 'functiondecl':
                 tree.funcs.append(ch)
 
@@ -98,6 +99,7 @@ class SetArguments(Visitor):
         self.set_class_parents(tree)
 
     def functiondecl(self, tree):
+        print('here')
         tree.inputs = []
         for formal in tree.find_data("formals"):
             for var in formal.find_data("variable"):

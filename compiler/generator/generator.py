@@ -13,7 +13,8 @@ from lark import Visitor, Tree
 
 from compiler.parser.grammar import grammar
 from compiler.parser.grammar import start
-from compiler.parser.parser import Parser, SetArguments, SemanticAnalyzer
+from compiler.parser.parser import Parser
+from compiler.parser.semantic_analyser import SetArguments, SemanticAnalyzer
 
 VARIABLE_DECLARATION = 'variabledecl'
 FUNCTION_DECLARATION = 'functiondecl'
@@ -804,15 +805,24 @@ class GeneratorTester:
 
     def test(self):
         import os
-
+        argument_set_visitor = SetArguments()
+        contains_class = False
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
+                print(file)
                 if file[-2:] == '.d':
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
 
-                    SetArguments().visit(tree)
+                    argument_set_visitor.visit(tree)
                     SemanticAnalyzer(self.get_classes(tree)).visit(tree)
+
+                    for classdecl in tree.find("classdecl"):
+                        contains_class = True
+                        break
+                    if contains_class:
+                        contains_class = False
+                        continue
 
                     generator = Generator()
                     generator.visit(tree)
@@ -822,6 +832,7 @@ class GeneratorTester:
                     code = final_generator.final_code
 
                     print(code)
+        print('here')
 
     def get_tree(self, file_address):
         return self.get_parser().parse_file(file_address)

@@ -120,7 +120,7 @@ class SetArguments(Visitor):
         for data in ['variable', 'expr']:
             for ch in tree.find_data(data):
                 var_count += 1
-                ch.var_num = "t" + var_count
+                ch.var_num = "t" + str(var_count)
         return var_count
 
     def classdecl(self, tree):
@@ -328,10 +328,9 @@ class SemanticAnalyzer(Visitor):
     def find_identifier_declaration(self, scope, identifier, identifier_mode):
         if scope.data == CLASS_DECLARATION:
             return self.get_field_declaration(scope, scope.children[1].value, identifier)
-        mode_map = {
-            VARIABLE: scope.vars,
-            FUNCTION_DECLARATION: scope.funcs
-        }
+        mode_map = { VARIABLE: scope.vars }
+        if scope.data != STATEMENT_BLOCK:
+            mode_map[FUNCTION_DECLARATION] = scope.funcs
         for part in mode_map[identifier_mode]:
             for declaration in part.find_data(identifier_mode):
                 if declaration.children[1].value == identifier:
