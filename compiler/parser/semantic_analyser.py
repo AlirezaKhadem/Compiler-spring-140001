@@ -58,6 +58,7 @@ ITOD = 'ITOD'
 DTOI = 'DTOI'
 ITOB = 'ITOB'
 BTOI = 'BTOI'
+LEFTPAR = 'LEFTPAR'
 
 output_type = {READINTEGER: INTT, READLINE: STRING, ITOD: DOUBLE, DTOI: INTT, ITOB: BOOL, BTOI: INTT}
 input_type = {ITOD: INTT, DTOI: DOUBLE, ITOB: INTT, BTOI: BOOL}
@@ -234,6 +235,8 @@ class SemanticAnalyzer(Visitor):
         if is_equal(tree.children[0].type, MINUS) and tree.children[1].expression_type in ["INTT", "DOUBLE"]:
             is_correct = True
         if is_equal(tree.children[0].type, "NOT") and is_equal(tree.children[1].type, BOOL):
+            is_correct = True
+        if is_equal(tree.children[0].type, LEFTPAR):
             is_correct = True
 
         return is_correct
@@ -431,10 +434,12 @@ class SemanticAnalyzer(Visitor):
 
     def check_others(self, tree):
         first_word = tree.children[0].type
-        if isinstance(tree.children[0], Tree) or first_word not in [NEW, READINTEGER, READLINE, ITOB, ITOD, BTOI, DTOI]:
+        if isinstance(tree.children[0], Tree) or first_word not in [NEW, READINTEGER, READLINE, ITOB, ITOD, BTOI, DTOI, LEFTPAR]:
             return
         if first_word == NEW:
             tree.expression_type = tree.children[1]
+        elif first_word == LEFTPAR:
+            tree.expression_type = tree.children[1].expression_type
         else:
             tree.expression_type = output_type[first_word.type]
         if first_word in [ITOB, ITOD, DTOI, BTOI] and input_type[first_word] != tree.children[2].expression_type:
