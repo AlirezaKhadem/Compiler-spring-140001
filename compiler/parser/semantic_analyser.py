@@ -215,7 +215,7 @@ class SetArguments(Visitor):
             "DOUBLECONSTANT": DOUBLE,
             "STRINGCONSTANT": STRING,
         }
-        tree.expression_type = type_map[tree.children[0].type]
+        tree.parent.expression_type = type_map[tree.children[0].type]
 
 
 class SemanticAnalyzer(Visitor):
@@ -418,7 +418,7 @@ class SemanticAnalyzer(Visitor):
         return False
 
     def check_set(self, tree):
-        if isinstance(tree.children[0], Tree) and is_equal(tree.children[0].data, LVALUE):
+        if len(tree.children) == 3 and isinstance(tree.children[0], Tree) and is_equal(tree.children[0].data, LVALUE):
             if self.is_parent_of(tree.children[0].expression_type, tree.children[2].expression_type):
                 tree.expression_type = VOID
             else:
