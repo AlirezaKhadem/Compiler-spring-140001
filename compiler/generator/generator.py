@@ -809,7 +809,6 @@ class GeneratorTester:
         contains_class = False
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
-                print(file)
                 if file[-2:] == '.d':
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)

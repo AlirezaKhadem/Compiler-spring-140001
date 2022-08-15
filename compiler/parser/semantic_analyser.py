@@ -217,7 +217,7 @@ class SetArguments(Visitor):
             "DOUBLECONSTANT": DOUBLE,
             "STRINGCONSTANT": STRING,
         }
-        tree.parent.expression_type = type_map[tree.children[0].type]
+        tree.expression_type = type_map[tree.children[0].type]
 
 
 class SemanticAnalyzer(Visitor):
