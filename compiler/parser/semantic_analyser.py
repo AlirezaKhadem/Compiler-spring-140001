@@ -59,6 +59,7 @@ DTOI = 'DTOI'
 ITOB = 'ITOB'
 BTOI = 'BTOI'
 LEFTPAR = 'LEFTPAR'
+THIS = 'THIS'
 
 output_type = {READINTEGER: INTT, READLINE: STRING, ITOD: DOUBLE, DTOI: INTT, ITOB: BOOL, BTOI: INTT}
 input_type = {ITOD: INTT, DTOI: DOUBLE, ITOB: INTT, BTOI: BOOL}
@@ -421,25 +422,36 @@ class SemanticAnalyzer(Visitor):
         return False
 
     def check_set(self, tree):
-        if len(tree.children) == 3 and isinstance(tree.children[0], Tree) and is_equal(tree.children[0].data, LVALUE):
-            if self.is_parent_of(tree.children[0].expression_type, tree.children[2].expression_type):
-                tree.expression_type = VOID
+        if isinstance(tree.children[0], Tree) and is_equal(tree.children[0].data, LVALUE):
+            if len(tree.children) == 3:
+                if self.is_parent_of(tree.children[0].expression_type, tree.children[2].expression_type):
+                    tree.expression_type = VOID
+                else:
+                    error()
             else:
-                error()
+                tree.expression_type = tree.children[0].expression_type
 
     def check_array(self, tree):
         if not isinstance(tree.children[0], Tree) and tree.children[0].type == NEWARRAY and tree.children[
             2].expression_type != INTT:
             error()
 
+    def find_current_class(self, tree):
+        while tree.parent is not None and tree.data is not CLASS_DECLARATION:
+            tree = tree.parent
+        if tree.parent is None:
+            error()
+        else:
+            return tree.children[1]
+
     def check_others(self, tree):
         first_word = tree.children[0].type
-        if isinstance(tree.children[0], Tree) or first_word not in [NEW, READINTEGER, READLINE, ITOB, ITOD, BTOI, DTOI, LEFTPAR]:
+        if isinstance(tree.children[0], Tree) or first_word not in [NEW, READINTEGER, READLINE, ITOB, ITOD, BTOI, DTOI, THIS]:
             return
         if first_word == NEW:
             tree.expression_type = tree.children[1]
-        elif first_word == LEFTPAR:
-            tree.expression_type = tree.children[1].expression_type
+        elif first_word == THIS:
+            tree.expression_type = self.find_current_class(tree)
         else:
             tree.expression_type = output_type[first_word.type]
         if first_word in [ITOB, ITOD, DTOI, BTOI] and input_type[first_word] != tree.children[2].expression_type:
