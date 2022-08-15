@@ -498,4 +498,4 @@ class SemanticAnalyzer(Visitor):
         if declaration is None or not self.check_param_match(declaration.children[3], tree.children[-2]):
             error()
 
-        tree.expression_type = self.type_to_string(declaration.children[0])
+        tree.parent.expression_type = self.type_to_string(declaration.children[0])
