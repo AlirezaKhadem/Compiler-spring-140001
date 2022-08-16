@@ -297,7 +297,7 @@ class SemanticAnalyzer(Visitor):
 
 class Parser:
     def __init__(self, grammar, start, parser=None):
-        self.parser = Lark(grammar=grammar, start=start, parser=parser, lexer="contextual")
+        self.parser = Lark(grammar=grammar, start=start, parser=parser)
 
     def parse_tokens(self, tokens):
         try:
@@ -321,7 +321,7 @@ class ParserTester:
         import os
         from compiler.parser.grammar import grammar, start
 
-        parser = Parser(grammar, start, parser='lalr')
+        parser = Parser(grammar, start, parser='earley')
         for test_file in os.listdir(self.tests_path):
             self.check_equality(test_file, parser)
 
