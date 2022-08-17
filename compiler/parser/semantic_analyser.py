@@ -187,6 +187,7 @@ class SetArguments(Visitor):
             if parent.data in ['forstmt', 'whilestmt']:
                 tree.parent_loop = parent
                 return
+            parent = parent.parent
         error(tree)
 
     def breakstmt(self, tree):
@@ -396,10 +397,11 @@ class SemanticAnalyzer(Visitor):
         return (is_equal(access, PRIVATE) and is_equal(class_name, obj_type)) or (
                 is_equal(access, PROTECTED) and self.is_parent_of(obj_type, class_name))
 
-    def get_field_declaration(self, obj_type, identifier, identifiers_mode):
-        if obj_type[-1] != '\n':
-            obj_type = obj_type + '\n'
-        class_tree = self.classes[obj_type]
+    def get_field_declaration(self, class_type, identifier, identifiers_mode):
+        if class_type[-1] != '\n':
+            class_type = class_type + '\n'
+        if '[' not in class_type:
+            class_tree = self.classes[class_type]
         while class_tree is not None:
             mode_map = {
                 VARIABLE: class_tree.vars,
@@ -409,7 +411,7 @@ class SemanticAnalyzer(Visitor):
             for field in list:
                 for declaration in field.find_data(identifiers_mode):
                     if is_equal(declaration.children[1], identifier):
-                        if len(field.children[0].children) == 0 or self.check_access(class_tree, obj_type, field.children[0].children[0].type):
+                        if len(field.children[0].children) == 0 or self.check_access(class_tree, class_type, field.children[0].children[0].type):
                             return declaration
             if class_tree.class_parent is None:
                 return None
@@ -542,13 +544,18 @@ class SemanticAnalyzer(Visitor):
                 tree.children[0],
                 FUNCTION_DECLARATION
             )
+        elif '[' in tree.children[0].expression_type:
+            if tree.children[2].value[1:-1] == 'length':
+                tree.expression_type = INTT
+            else:
+                error(tree)
+            return
         else:
             declaration = self.get_field_declaration(
                 tree.children[0].expression_type,
                 tree.children[2],
                 FUNCTION_DECLARATION
             )
-        if declaration is None or not self.check_param_match(declaration.children[3], tree.children[-2]):
+        if (declaration is None or not self.check_param_match(declaration.children[3], tree.children[-2])):
             error(tree)
-
         tree.expression_type = self.type_to_string(declaration.children[0])

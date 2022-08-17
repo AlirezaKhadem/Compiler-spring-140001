@@ -105,6 +105,7 @@ STRINGCONSTANT = "STRINGCONSTANT"
 A0 = "$a0"
 MAIN = 'main'
 UNRESERVE = 'UNRESERVE'
+LENGTH = 'LENGTH'
 
 
 class Generator(Visitor):
@@ -154,12 +155,15 @@ class Generator(Visitor):
         return answer
 
     def call(self, tree):
-        num_params = 0
-        if len(tree.children[2].children) > 0:
-            self.add_command(PUSH, RA)
-            num_params = self.push_parameters(tree.children[2].children[0])
-        self.add_command(CALL, tree.children[0].value[:-1])
-        self.add_command(POP)
+        if isinstance(tree.children[0], Tree) and '[' in tree.children[0].expression_type:
+            self.add_command(tree.parent.var_num, SET, LENGTH, tree.children[0].var_num)
+        else:
+            num_params = 0
+            if len(tree.children[2].children) > 0:
+                self.add_command(PUSH, RA)
+                num_params = self.push_parameters(tree.children[2].children[0])
+            self.add_command(CALL, tree.children[0].value[:-1])
+            self.add_command(POP)
         self.clean(tree)
 
     def stmtblock(self, tree):
@@ -210,11 +214,11 @@ class Generator(Visitor):
         self.clean(tree)
 
     def continuestmt(self, tree):
-        self.add_command(GOTO, tree.parent_loop.label)
+        self.add_command(GOTO, str(self.index_label(tree.parent_loop.label)) + ":")
         self.clean(tree)
 
     def breakstmt(self, tree):
-        self.add_command(GOTO, tree.parent_loop.label + 1)
+        self.add_command(GOTO, str(self.index_label(tree.parent_loop.label + 1)) + ":")
         self.clean(tree)
 
     def ifstmt(self, tree):
@@ -369,7 +373,7 @@ class FinalGenerator:
         elif parts[0] == PUSH:
             self.push(parts[1])
         elif parts[0] == POP:
-            self.pop(parts[1])
+            self.pop()
         elif parts[0] == RESERVE:
             self.reserve(parts[1])
         elif parts[0] == UNRESERVE:
@@ -539,6 +543,8 @@ class FinalGenerator:
             self.addi(T0, ZERO, parts[-1])
         elif parts[2] == STRINGCONSTANT:
             self.save_string(parts[-1])
+        elif parts[-2] == LENGTH:
+            self.load_word(T0, T1)
         elif parts[3] == AND:
             self.andd(T0, T1, T2)
         elif parts[3] == OR:
@@ -856,12 +862,11 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    if 't274' in file:
+                    if 't164' in file or 't163' in file or 't162' in file:
                         continue
                     print(file)
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
-
                     argument_set_visitor.visit(tree)
                     SemanticAnalyzer(self.get_classes(tree)).visit(tree)
 
@@ -905,9 +910,12 @@ class GeneratorTester:
 
 
 if __name__ == "__main__":
-    GeneratorTester('../generator/tests/GlobalVariables').test()
+    GeneratorTester('../generator/tests/StringExpressions').test()
 
+# a = b should not be void cause of many of errors
 # Boolean...
 # Condition -142 -143
 # Functions -sort
 # Global t274
+# IntegerExp t217 t255
+# Loop t162-4
