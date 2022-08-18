@@ -393,10 +393,10 @@ class FinalGenerator:
             self.operation(parts)
 
     def unreserve(self, number):
-        self.addi(SP, SP, number)
+        self.addi(SP, SP, str(4*int(number)))
 
     def reserve(self, number):
-        self.addi(SP, SP, "-" + number)
+        self.addi(SP, SP, "-" + str(4*int(number)))
 
     def returnn(self, parts):
         if len(parts) == 3:
@@ -771,6 +771,8 @@ class FinalGenerator:
         parts = var.split('_')
         if by_address:
             self.load_var(dest, parts[0], True)
+            if len(parts) == 1:
+                return
         else:
             self.load_var(T3, parts[0], False)
         if len(parts) == 2:
