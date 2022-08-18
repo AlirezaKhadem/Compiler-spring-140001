@@ -292,6 +292,8 @@ class SemanticAnalyzer(Visitor):
     def check_operation(self, tree):
         if isinstance(tree.children[0], Tree) and tree.children[0].data == EXPR:
             if tree.children[1].type in [PLUS, MINUS, MULT, DIV, MOD]:
+                if tree.children[1].type == MULT:
+                    print(tree.children[0].pretty(), tree.children[2].pretty())
                 tree.expression_type = tree.children[0].expression_type
             elif tree.children[1].type in [
                 MORE,
@@ -460,6 +462,7 @@ class SemanticAnalyzer(Visitor):
                 else:
                     error(tree)
             else:
+                print(tree.children[0].children[0].value)
                 tree.expression_type = tree.children[0].expression_type
 
     def check_array(self, tree):

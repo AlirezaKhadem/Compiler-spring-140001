@@ -118,7 +118,7 @@ class Generator(Visitor):
         for func in tree.funcs:
             if self.is_main_function(func):
                 main_tree = func
-                self.code = func.parent.code + '\n' + self.code
+                self.code = func.parent.code + '\n' + self.code + '\n' + EXIT
             else:
                 self.code = self.code + func.parent.code
         if main_tree is None:
@@ -143,6 +143,7 @@ class Generator(Visitor):
                 self.add_command(children.code, '', '')
         self.add_command("_end" + tree.children[1].value[:-1] + ":")
         self.add_command(UNRESERVE, str(tree.var_needed))
+        self.add_command(POP)
         self.clean(tree)
 
     def push_parameters(self, tree):
@@ -163,7 +164,6 @@ class Generator(Visitor):
                 self.add_command(PUSH, RA)
                 num_params = self.push_parameters(tree.children[2].children[0])
             self.add_command(CALL, tree.children[0].value[:-1])
-            self.add_command(POP)
         self.clean(tree)
 
     def stmtblock(self, tree):
@@ -184,7 +184,9 @@ class Generator(Visitor):
 
     def returnstmt(self, tree):
         function_parent = self.function_parent(tree)
-        if len(tree.children) == 3:
+        if function_parent.children[1].value[1:-1] == MAIN:
+            self.add_command(EXIT)
+        elif len(tree.children) == 3:
             self.add_command(tree.children[1].code)
             self.add_command(RETURN, function_parent, tree.children[1].var_num)
         else:
@@ -261,15 +263,18 @@ class Generator(Visitor):
 
     def two_op(self, tree):
         op = None
-        if tree.children[0].expression_type == STRING and not isinstance(tree.children[3], Tree):
-            if tree.children[3].type == PLUS:
-                op = CONCAT
-            elif tree.children[3].type in [EQUALS, NEQ]:
-                op = 'S' + tree.children[3].type
-        elif '[' in tree.children[0].expression_type:
-            op = ARRAYMERGE
-        else:
-            op = tree.children[1].type
+        try:
+            if tree.children[0].expression_type == STRING and not isinstance(tree.children[3], Tree):
+                if tree.children[3].type == PLUS:
+                    op = CONCAT
+                elif tree.children[3].type in [EQUALS, NEQ]:
+                    op = 'S' + tree.children[3].type
+            elif '[' in tree.children[0].expression_type:
+                op = ARRAYMERGE
+            else:
+                op = tree.children[1].type
+        except:
+            print(tree.children[0].pretty())
         self.add_command(tree.var_num, SET, tree.children[0].var_num, op, tree.children[2].var_num)
 
     def lvalue(self, tree):
@@ -357,8 +362,11 @@ class FinalGenerator:
     def convert_line(self, parts):
         if len(parts) == 0:
             return
-        if len(parts) == 1:
-            self.add_command(parts[0])
+        if len(parts) == 1 and parts[0] != POP:
+            if parts[0] == EXIT:
+                self.syscall(10)
+            else:
+                self.add_command(parts[0])
             return
         if parts[0] == GOTO:
             self.jump(parts[1])
@@ -397,8 +405,9 @@ class FinalGenerator:
         self.add_command("jal", function)
 
     def pop(self):
-        self.addi(SP, SP, self.function_input_space[-1] * 4)
-        del self.function_input_space[-1]
+        if len(self.function_input_space) > 0:
+            self.addi(SP, SP, self.function_input_space[-1] * 4)
+            del self.function_input_space[-1]
         self.load_word(RA, SP)
         self.addi(SP, SP, 4)
         self.add_command("jr", RA)
@@ -811,15 +820,15 @@ class FinalGenerator:
         index = self.code.find("\n")
         global_num = int(self.code[:index])
         for i in range(1, global_num + 1):
-            self.add_command("s" + str(i) + ":\t.word\t0")
-        self.add_command("next_line:\t.asciiz\t\"\\n\"")
-        self.add_command("true:\t.asciiz\t\"true\"")
-        self.add_command("false:\t.asciiz\t\"false\"")
-        self.add_command("bound_error:\t.asciiz\t\"Array index out of bound.\"")
-        self.add_command("zero_div:\t.asciiz\t\"Division by zero.\"")
+            self.add_command("s" + str(i) + ":\t.word\t0\n")
+        self.add_command("next_line:\t.asciiz\t\"\\n\"\n")
+        self.add_command("true:\t.asciiz\t\"true\"\n")
+        self.add_command("false:\t.asciiz\t\"false\"\n")
+        self.add_command("bound_error:\t.asciiz\t\"Array index out of bound.\"\n")
+        self.add_command("zero_div:\t.asciiz\t\"Division by zero.\"\n")
         self.code = self.code[index + 1 :]
-        self.add_command(".text")
-        self.add_command(".globl main")
+        self.add_command(".text\n")
+        self.add_command(".globl main\n")
 
     def syscall(self, sys_code):
         self.addi('$v0', ZERO, str(sys_code))
@@ -844,6 +853,8 @@ class FinalGenerator:
                 self.final_code = self.final_code + str(args[i]) + '\n'
             else:
                 self.final_code = self.final_code + str(args[i]) + ','
+        if self.final_code[-1] != '\n':
+            self.final_code = self.final_code + '\n'
 
 
 class GeneratorTester:
@@ -888,7 +899,8 @@ class GeneratorTester:
                     final_generator.convert()
                     code = final_generator.final_code
 
-                    #print(code)
+                    print(code)
+                    exit()
 
     def get_tree(self, file_address):
         return self.get_parser().parse_file(file_address)
@@ -914,7 +926,7 @@ class GeneratorTester:
 
 
 if __name__ == "__main__":
-    GeneratorTester('../generator/tests/SemanticError(type2)').test()
+    GeneratorTester('../generator/tests/BooleanExpressions').test()
 
 # a = b should not be void cause of many of errors
 # Boolean...
