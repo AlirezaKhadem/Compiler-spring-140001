@@ -465,7 +465,7 @@ class FinalGenerator:
             self.print_string(parts[2])
 
     def print_next_line(self):
-        self.load_address("$a0", "next_line")
+        self.load_address(A0, "next_line")
         self.syscall(4)
 
     def operation(self, parts):
@@ -749,15 +749,17 @@ class FinalGenerator:
         if '\"' in line:
             line_except_string = line[:line.find('\"')]
             parts = line_except_string.split()
-            parts.append(line[len(line_except_string) :])
+            parts.append(line[len(line_except_string):])
         else:
             parts = line.split()
         for i in range(len(parts)):
             if parts[i][0] in ['s', 't'] and parts[i] != 'true':
                 if i == 0:
                     self.load_var_or_array("$s" + str(i), parts[i], True)
+                    parts[i] = "$s" + str(i)
                 else:
                     self.load_var_or_array("$t" + str(i), parts[i], False)
+                    parts[i] = "$t" + str(i)
         return parts
 
     def load_var_or_array(self, dest, var, by_address):
