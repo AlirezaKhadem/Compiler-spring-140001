@@ -118,7 +118,7 @@ class Generator(Visitor):
         for func in tree.funcs:
             if self.is_main_function(func):
                 main_tree = func
-                self.code = func.parent.code + '\n' + self.code + '\n' + EXIT
+                self.code = func.parent.code + EXIT + '\n' + self.code
             else:
                 self.code = self.code + func.parent.code
         if main_tree is None:
@@ -216,11 +216,11 @@ class Generator(Visitor):
         self.clean(tree)
 
     def continuestmt(self, tree):
-        self.add_command(GOTO, str(self.index_label(tree.parent_loop.label)) + ":")
+        self.add_command(GOTO, str(self.index_label(tree.parent_loop.label)))
         self.clean(tree)
 
     def breakstmt(self, tree):
-        self.add_command(GOTO, str(self.index_label(tree.parent_loop.label + 1)) + ":")
+        self.add_command(GOTO, str(self.index_label(tree.parent_loop.label + 1)))
         self.clean(tree)
 
     def ifstmt(self, tree):
