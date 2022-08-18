@@ -590,7 +590,6 @@ class FinalGenerator:
         elif parts[3] == SNEQ:
             self.string_neq()
         elif parts[2] == NEWARRAY:
-            print('here')
             self.new_array()
         elif parts[2] == NOT:
             self.nor(T0, T1, T1)
@@ -758,14 +757,16 @@ class FinalGenerator:
             parts.append(line[len(line_except_string):])
         else:
             parts = line.split()
+        index = 0
         for i in range(len(parts)):
             if parts[i][0] in ['s', 't'] and parts[i] != 'true':
                 if i == 0:
-                    self.load_var_or_array("$s" + str(i), parts[i], True)
+                    self.load_var_or_array("$s" + str(index), parts[i], True)
                     parts[i] = "$s" + str(i)
                 else:
-                    self.load_var_or_array("$t" + str(i), parts[i], False)
-                    parts[i] = "$t" + str(i)
+                    self.load_var_or_array("$t" + str(index), parts[i], False)
+                    parts[i] = "$t" + str(index)
+                index += 1
         return parts
 
     def load_var_or_array(self, dest, var, by_address):
@@ -778,7 +779,7 @@ class FinalGenerator:
             self.load_var(T3, parts[0], False)
         if len(parts) == 2:
             self.load_array(T3, parts[1], by_address)
-        self.load_word(dest, T3)
+        self.addi(dest, T3, ZERO)
 
 
     def load_var(self, dest, var, by_address = False):
