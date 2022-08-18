@@ -99,7 +99,7 @@ class SetArguments(Visitor):
                 if self.is_primitive(declaration.children[0].children[0]):
                     declaration.children[0].children[0].var_num = "sp" + str(var_index)
                 else:
-                    declaration.children[0].children[0].var_num = "sp" + str(var_index)
+                    declaration.children[0].children[0].var_num = "s" + str(var_index)
             elif is_equal(data=declaration.children[0].data, expected_value=FUNCTION_DECLARATION):
                 tree.funcs.append(declaration.children[0])
         tree.var_needed = var_index

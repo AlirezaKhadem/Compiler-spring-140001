@@ -770,20 +770,23 @@ class FinalGenerator:
     def load_var_or_array(self, dest, var, by_address):
         parts = var.split('_')
         if by_address:
-            self.load_address(dest, parts[0])
+            self.load_var(dest, parts[0], True)
         else:
-            self.load_var(T3, parts[0])
+            self.load_var(T3, parts[0], False)
         if len(parts) == 2:
             self.load_array(T3, parts[1], by_address)
         self.load_word(dest, T3)
 
-    def load_var(self, dest, var):
-        if var[:2] == 'sp':
+
+    def load_var(self, dest, var, by_address = False):
+        if var[:2] == 'sp' and not by_address:
             self.load_word(dest, var)
-        elif var[0] == 's':
+        elif var[0] in ['s', 'sp']:
             self.load_address(dest, var)
         else:
             self.addi(dest, SP, int(var[1:]) * 4 + self.reference_point)
+            if not by_address:
+                self.load_word(dest, dest)
 
     def load_array(self, address, index_var, load_address):
         self.load_var(T4, index_var)
