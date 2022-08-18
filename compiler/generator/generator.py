@@ -142,8 +142,9 @@ class Generator(Visitor):
             if isinstance(children, Tree) and children.data == STATEMENT_BLOCK:
                 self.add_command(children.code, '', '')
         self.add_command("_end" + tree.children[1].value[:-1] + ":")
-        self.add_command(UNRESERVE, str(tree.var_needed))
-        self.add_command(POP)
+        if tree.children[1].value[1:-1] != MAIN:
+            self.add_command(UNRESERVE, str(tree.var_needed))
+            self.add_command(POP)
         self.clean(tree)
 
     def push_parameters(self, tree):
