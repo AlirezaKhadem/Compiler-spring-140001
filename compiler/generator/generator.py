@@ -136,6 +136,8 @@ class Generator(Visitor):
         self.code = ""
 
     def functiondecl(self, tree):
+        if tree.children[1].value[1:-1] == MAIN:
+            self.add_command("main:")
         self.add_command(tree.children[1].value[:-1] + ":")
         self.add_command(RESERVE, str(tree.var_needed))
         for children in tree.children:
@@ -879,6 +881,7 @@ class GeneratorTester:
             for file in files:
                 if file[-2:] == '.d':
                     print(file)
+                    file = 't123-array-2.d'
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
                     try:
@@ -931,7 +934,7 @@ class GeneratorTester:
 
 
 if __name__ == "__main__":
-    GeneratorTester('../generator/tests/BooleanExpressions').test()
+    GeneratorTester('../generator/tests/Arrays').test()
 
 # a = b should not be void cause of many of errors
 # Boolean...
