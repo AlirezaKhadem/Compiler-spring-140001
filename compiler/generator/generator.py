@@ -330,7 +330,7 @@ class Generator(Visitor):
         elif tree.children[0].type == LEFTPAR:
             self.add_command(tree.var_num, SET, tree.children[1].var_num)
         elif tree.children[0].type == NEWARRAY:
-            self.add_command(tree.var_num, tree.children[0].type, tree.children[2].var_num)
+            self.add_command(tree.var_num, SET, tree.children[0].type, tree.children[2].var_num)
         elif tree.children[0].type in [ITOD, ITOB, DTOI, BTOI]:
             self.add_command(tree.var_num, SET, tree.children[0].type, tree.children[2].var_num)
         elif tree.children[0].type in [READINTEGER, READLINE]:
@@ -590,6 +590,7 @@ class FinalGenerator:
         elif parts[3] == SNEQ:
             self.string_neq()
         elif parts[2] == NEWARRAY:
+            print('here')
             self.new_array()
         elif parts[2] == NOT:
             self.nor(T0, T1, T1)
@@ -911,6 +912,7 @@ class GeneratorTester:
                     final_generator = FinalGenerator(generator.code)
                     final_generator.convert()
                     code = final_generator.final_code
+                    print(generator.code)
 
                     print(code)
                     exit()
