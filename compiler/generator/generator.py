@@ -425,7 +425,7 @@ class FinalGenerator:
 
     def add_label(self):
         self.label_index += 1
-        self.add_command(str(self.label_index) + ":")
+        self.add_command("P" + str(self.label_index) + ":")
 
     def print_string_by_address(self, var):
         self.load_address(A0, var)
@@ -828,7 +828,7 @@ class FinalGenerator:
         self.add_command("zero_div:\t.asciiz\t\"Division by zero.\"\n")
         self.code = self.code[index + 1 :]
         self.add_command(".text\n")
-        self.add_command(".globl main\n")
+        #self.add_command(".globl main\n")
 
     def syscall(self, sys_code):
         self.addi('$v0', ZERO, str(sys_code))
