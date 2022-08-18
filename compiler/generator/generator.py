@@ -402,6 +402,8 @@ class FinalGenerator:
 
     def call(self, function):
         self.reference_point = 0
+        if function[0] != '_':
+            function = '_' + function
         self.add_command("jal", function)
 
     def pop(self):
