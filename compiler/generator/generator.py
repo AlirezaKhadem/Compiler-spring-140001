@@ -779,7 +779,7 @@ class FinalGenerator:
             self.load_var(T3, parts[0], False)
         if len(parts) == 2:
             self.load_array(T3, parts[1], by_address)
-        self.addi(dest, T3, ZERO)
+        self.add(dest, T3, ZERO)
 
 
     def load_var(self, dest, var, by_address = False):
