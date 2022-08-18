@@ -862,13 +862,17 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    if 't164' in file or 't163' in file or 't162' in file:
-                        continue
                     print(file)
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
-                    argument_set_visitor.visit(tree)
-                    SemanticAnalyzer(self.get_classes(tree)).visit(tree)
+                    try:
+                        argument_set_visitor.visit(tree)
+                        SemanticAnalyzer(self.get_classes(tree)).visit(tree)
+                    except Exception as e:
+                        print(str(e))
+                        if str(e) != 'Semantic Error':
+                            exit(1)
+
 
                     for classdecl in tree.find_data("classdecl"):
                         contains_class = True
@@ -910,7 +914,7 @@ class GeneratorTester:
 
 
 if __name__ == "__main__":
-    GeneratorTester('../generator/tests/StringExpressions').test()
+    GeneratorTester('../generator/tests/SemanticError(type2)').test()
 
 # a = b should not be void cause of many of errors
 # Boolean...

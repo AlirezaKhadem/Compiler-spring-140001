@@ -64,11 +64,11 @@ THIS = 'THIS'
 output_type = {READINTEGER: INTT, READLINE: STRING, ITOD: DOUBLE, DTOI: INTT, ITOB: BOOL, BTOI: INTT}
 input_type = {ITOD: INTT, DTOI: DOUBLE, ITOB: INTT, BTOI: BOOL}
 
+semantic_error = 0
 
 def error(tree):
-    print(tree.pretty())
-    print("Semantic Error")
-    exit()
+    #print(tree.pretty())
+    raise Exception("Semantic Error")
 
 
 def is_equal(data, expected_value):
@@ -81,7 +81,6 @@ def remove_unnecessary(data):
     data = data.replace(' ', '')
     data = data.replace('\n', '')
     return data
-
 
 class SetArguments(Visitor):
 
