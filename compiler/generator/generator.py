@@ -847,7 +847,7 @@ class FinalGenerator:
         self.add_command('sw', reg, str(offset) + '(' + address + ')')
 
     def add_command(self, *args):
-        self.final_code = self.final_code + args[0]
+        self.final_code = self.final_code + args[0] + ' '
         for i in range(1, len(args)):
             if i == len(args) - 1:
                 self.final_code = self.final_code + str(args[i]) + '\n'
