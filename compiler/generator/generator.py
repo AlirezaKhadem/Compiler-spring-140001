@@ -524,6 +524,8 @@ class FinalGenerator:
         self.move_cl(T1, F1)
         self.move_cl(T2, F2)
         if parts[2] == DOUBLECONSTANT:
+            if 'e' in parts[3] or 'E' in parts[3]:
+                parts[3] = '{:f}'.format(float(parts[3]))
             self.add_command("li.s", F0, parts[3])
         elif parts[3] == PLUS:
             self.add_command("add.s", F0, F1, F2)
@@ -898,7 +900,7 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    file = 't021-output-12.d'
+                    file = 't028-output-19.d'
                     print(file)
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
