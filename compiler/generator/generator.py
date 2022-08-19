@@ -266,18 +266,15 @@ class Generator(Visitor):
 
     def two_op(self, tree):
         op = None
-        try:
-            if tree.children[0].expression_type == STRING and not isinstance(tree.children[3], Tree):
-                if tree.children[3].type == PLUS:
-                    op = CONCAT
-                elif tree.children[3].type in [EQUALS, NEQ]:
-                    op = 'S' + tree.children[3].type
-            elif '[' in tree.children[0].expression_type:
-                op = ARRAYMERGE
-            else:
-                op = tree.children[1].type
-        except:
-            print(tree.children[0].pretty())
+        if tree.children[0].expression_type == STRING and not isinstance(tree.children[3], Tree):
+            if tree.children[3].type == PLUS:
+                op = CONCAT
+            elif tree.children[3].type in [EQUALS, NEQ]:
+                op = 'S' + tree.children[3].type
+        elif '[' in tree.children[0].expression_type:
+            op = ARRAYMERGE
+        else:
+            op = tree.children[1].type
         self.add_command(tree.var_num, SET, tree.children[0].var_num, op, tree.children[2].var_num)
 
     def lvalue(self, tree):

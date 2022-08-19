@@ -128,10 +128,13 @@ class SetArguments(Visitor):
 
     def set_variable_number(self, tree):
         var_count = 0
-        for data in ['variable', 'expr']:
+        for data in [VARIABLE, EXPR]:
             for ch in tree.find_data(data):
-                var_count += 1
-                ch.var_num = "t" + str(var_count)
+                if data == EXPR and isinstance(ch.children[0], Tree) and ch.children[0].data == LVALUE and len(ch.children[0].children) == 1:
+                    ch.var_num = ch.children[0].children[0].value
+                else:
+                    var_count += 1
+                    ch.var_num = "t" + str(var_count)
         return var_count
 
     def classdecl(self, tree):
@@ -167,7 +170,6 @@ class SetArguments(Visitor):
 
     def functiondecl(self, tree):
         self.initial_inputs(tree)
-        tree.var_needed = 0
         tree.var_needed = tree.children[-1].var_needed
         var_needed = tree.var_needed + 1
         for formal in tree.find_data(FORMALS):
@@ -236,6 +238,13 @@ class SemanticAnalyzer(Visitor):
     def __init__(self, classes):
         super().__init__()
         self.classes = classes
+
+    def start(self, tree):
+        for classdecl in tree.find_data(CLASS_DECLARATION):
+            return
+        for node in tree.find_data(EXPR):
+            if node.var_num[0] == '_':
+                node.var_num = self.get_identifier_declaration(node, node.var_num, VARIABLE).var_num
 
     @classmethod
     def correct_unary_operation_type(self, tree):
@@ -460,7 +469,6 @@ class SemanticAnalyzer(Visitor):
                 else:
                     error(tree)
             else:
-                print(tree.children[0].children[0].value)
                 tree.expression_type = tree.children[0].expression_type
 
     def check_array(self, tree):
