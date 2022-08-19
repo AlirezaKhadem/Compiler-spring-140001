@@ -748,6 +748,7 @@ class FinalGenerator:
         self.add("mflo", dest)
 
     def mod(self, dest, r1, r2):
+        self.check_zero_division(r2, True)
         self.add_command("div", r1, r2)
         self.add_command("mfhi", dest)
 
