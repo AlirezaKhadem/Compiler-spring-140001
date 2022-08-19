@@ -458,11 +458,11 @@ class FinalGenerator:
         self.syscall(2)
 
     def print(self, parts):
-        if parts[1] == BOOL:
+        if 'bool' in parts[1]:
             self.print_bool(parts[2])
-        elif parts[1] == INTT:
+        elif 'int' in parts[1]:
             self.print_int(parts[2])
-        elif parts[1] == DOUBLE:
+        elif 'double' in parts[1]:
             self.print_double(parts[2])
         elif parts[1] == 'nextline':
             self.print_next_line()
@@ -885,8 +885,6 @@ class GeneratorTester:
         self.tests_path = tests_path
         self.parser = Parser(grammar=grammar, start=start, parser='earley')
 
-    def later_files(self, file):
-        return 'error' in file or 'interface' in file or 't143-cond-9' in file or 't142-cond' in file
 
     def test(self):
         import os
