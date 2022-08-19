@@ -187,7 +187,7 @@ class Generator(Visitor):
 
     def returnstmt(self, tree):
         function_parent = self.function_parent(tree)
-        if function_parent.children[1].value[1:-1] == MAIN:
+        if function_parent[1:] == MAIN:
             self.add_command(EXIT)
         elif len(tree.children) == 3:
             self.add_command(tree.children[1].code)
@@ -893,7 +893,7 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    file = 't065-boolean-6.d'
+                    file = 't600-continue.d'
                     print(file)
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
@@ -950,7 +950,7 @@ class GeneratorTester:
 
 
 if __name__ == "__main__":
-    GeneratorTester('../generator/tests/BooleanExpressions').test()
+    GeneratorTester('../generator/tests/LoopStatements').test()
 
 # a = b should not be void cause of many of errors
 # Boolean...
