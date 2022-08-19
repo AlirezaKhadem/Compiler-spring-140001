@@ -492,6 +492,9 @@ class FinalGenerator:
     def move_cl(self, t, f):
         self.add_command("mtc1", t, f)
 
+    def movf_cl(self, t, f):
+        self.add_command("mfc1", t, f)
+
     def type_conversion(self, parts):
         if parts[-2] in [ITOD, DTOI]:
             self.move_cl(T1, F1)
@@ -499,7 +502,7 @@ class FinalGenerator:
                 self.itod()
             else:
                 self.dtoi()
-            self.add_command("mfc1", T0, F0)
+            self.movf_cl(T0, F0)
         else:
             if parts[-2] == BTOI:
                 self.btoi()
@@ -543,7 +546,9 @@ class FinalGenerator:
             self.add_command("c.le.s", F0, F1, F2)
         elif parts[3] == MORQ:
             self.add_command("c.lt.s", F0, F1, F2)
-        self.add_command("s.s", F0, S0)
+
+        self.movf_cl(T0, F0)
+        self.save_word(T0, S0)
 
     def divf(self, dest, r1, r2):
         self.check_zero_division(r2, False)
