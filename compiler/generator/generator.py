@@ -773,11 +773,11 @@ class FinalGenerator:
         is_set = SET in parts
         for i in range(len(parts)):
             if parts[i][0] in ['s', 't'] and parts[i] not in ['true', 'string']:
-                if i == 0 and is_set:
+                if (i == 0 and is_set) or 'string' in parts:
                     self.load_var_or_array("$s" + str(index), parts[i], True)
-                    parts[i] = "$s" + str(i)
+                    parts[i] = "$s" + str(index)
                 else:
-                    self.load_var_or_array("$t" + str(index), parts[i], 'string' in parts)
+                    self.load_var_or_array("$t" + str(index), parts[i], False)
                     parts[i] = "$t" + str(index)
                 index += 1
         return parts
