@@ -543,7 +543,7 @@ class FinalGenerator:
             self.add_command("c.le.s", F0, F1, F2)
         elif parts[3] == MORQ:
             self.add_command("c.lt.s", F0, F1, F2)
-        self.save_word(F0, S0)
+        self.add_command("swc1", F0, S0)
 
     def divf(self, dest, r1, r2):
         self.check_zero_division(r2, False)
