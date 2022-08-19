@@ -441,7 +441,6 @@ class FinalGenerator:
         self.syscall(4)
 
     def print_bool(self, var):
-        self.load_word(T0, var)
         self.if0(T0, "P" + str(self.label_index + 1))
         self.print_string_by_address("true")
         self.jump("P" + str(self.label_index + 2))
