@@ -745,11 +745,11 @@ class FinalGenerator:
     def div(self, dest, r1, r2):
         self.check_zero_division(r2, True)
         self.add_command("div", r1, r2)
-        self.add(dest, ZERO, "lo")
+        self.add("mflo", dest)
 
     def mod(self, dest, r1, r2):
         self.add_command("div", r1, r2)
-        self.add(dest, ZERO, "hi")
+        self.add_command("mfhi", dest)
 
     def mult(self, dest, r1, r2):
         self.add_command("mul", dest, r1, r2)
@@ -900,7 +900,7 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    file = 't157-loop-6.d'
+                    file = 't159-loop-8.d'
                     print(file)
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
