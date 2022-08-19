@@ -437,7 +437,7 @@ class FinalGenerator:
         self.syscall(4)
 
     def print_string(self, var):
-        self.load_word(A0, var)
+        self.add(A0, var, ZERO)
         self.syscall(4)
 
     def print_bool(self, var):
@@ -450,11 +450,11 @@ class FinalGenerator:
         self.add_label()
 
     def print_int(self, var):
-        self.load_word(A0, var)
+        self.add(A0, ZERO, var)
         self.syscall(1)
 
     def print_double(self, var):
-        self.load_word("$f12", var)
+        self.move_cl(var, "$f12")
         self.syscall(2)
 
     def print(self, parts):
