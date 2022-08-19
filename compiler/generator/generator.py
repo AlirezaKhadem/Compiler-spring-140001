@@ -557,9 +557,6 @@ class FinalGenerator:
         else:
             self.addi(T0, ZERO, 0)
 
-    def neg(self, var):
-        self.add_command("neg", var)
-
     def math_operate(self, parts):
         if len(parts) == 3:
             self.add(T0, T1, ZERO)
@@ -570,7 +567,7 @@ class FinalGenerator:
         elif parts[2] == STRINGCONSTANT:
             self.save_string(parts[-1])
         elif parts[2] == MINUS:
-            self.neg(parts[3])
+            self.sub(T0, ZERO, parts[3])
         elif parts[-2] == LENGTH:
             self.load_word(T0, T1)
         elif parts[3] == AND:
