@@ -791,6 +791,7 @@ class FinalGenerator:
         else:
             self.load_var(T3, parts[0], False)
         if len(parts) == 2:
+            self.add(T3, dest, ZERO)
             self.load_array(T3, parts[1], by_address)
         self.add(dest, T3, ZERO)
 
@@ -898,7 +899,7 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    file = 't095-expr-5.d'
+                    file = 't131-array-10.d'
                     print(file)
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
@@ -955,7 +956,7 @@ class GeneratorTester:
 
 
 if __name__ == "__main__":
-    GeneratorTester('../generator/tests/SemanticError(type2)').test()
+    GeneratorTester('../generator/tests/Arrays').test()
 
 # a = b should not be void cause of many of errors
 # Boolean...
