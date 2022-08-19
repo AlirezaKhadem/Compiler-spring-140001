@@ -777,7 +777,7 @@ class FinalGenerator:
                     self.load_var_or_array("$s" + str(index), parts[i], True)
                     parts[i] = "$s" + str(i)
                 else:
-                    self.load_var_or_array("$t" + str(index), parts[i], False)
+                    self.load_var_or_array("$t" + str(index), parts[i], 'string' in parts)
                     parts[i] = "$t" + str(index)
                 index += 1
         return parts
