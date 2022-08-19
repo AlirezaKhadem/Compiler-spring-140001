@@ -766,9 +766,10 @@ class FinalGenerator:
         else:
             parts = line.split()
         index = 0
+        is_set = SET in parts
         for i in range(len(parts)):
             if parts[i][0] in ['s', 't'] and parts[i] != 'true':
-                if i == 0:
+                if i == 0 and is_set:
                     self.load_var_or_array("$s" + str(index), parts[i], True)
                     parts[i] = "$s" + str(i)
                 else:
