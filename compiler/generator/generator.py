@@ -887,8 +887,8 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
+                    file = 't065-boolean-6.d'
                     print(file)
-                    file = 't123-array-2.d'
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
                     try:
@@ -898,6 +898,8 @@ class GeneratorTester:
                         print(str(e))
                         if str(e) != 'Semantic Error':
                             exit(1)
+                        else:
+                            continue
 
 
                     for classdecl in tree.find_data("classdecl"):
@@ -942,7 +944,7 @@ class GeneratorTester:
 
 
 if __name__ == "__main__":
-    GeneratorTester('../generator/tests/Arrays').test()
+    GeneratorTester('../generator/tests/BooleanExpressions').test()
 
 # a = b should not be void cause of many of errors
 # Boolean...
