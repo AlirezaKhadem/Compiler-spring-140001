@@ -900,7 +900,7 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    file = 't028-output-19.d'
+                    file = 't157-loop-6.d'
                     print(file)
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
@@ -957,7 +957,7 @@ class GeneratorTester:
 
 
 if __name__ == "__main__":
-    GeneratorTester('../generator/tests/ReadAndWrite').test()
+    GeneratorTester('../generator/tests/LoopStatements').test()
 
 # a = b should not be void cause of many of errors
 # Boolean...

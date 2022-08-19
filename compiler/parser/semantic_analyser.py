@@ -206,7 +206,7 @@ class SetArguments(Visitor):
         tree.exps = [None] * 3
         for i in range(len(tree.children)):
             ch = tree.children[i]
-            if isinstance(ch, Tree) and ch.data == 'expr':
+            if isinstance(ch, Tree) and ch.data == EXPR:
                 if i == 2:
                     tree.exps[0] = ch
                 elif i == len(tree.children) - 3:
