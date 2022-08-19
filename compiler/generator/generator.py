@@ -614,7 +614,7 @@ class FinalGenerator:
         self.add(T0, V0, ZERO)
         self.add(T1, T0, ZERO)
         for i in range(len(string)):
-            self.addi(T2, ZERO, ord(string[i]))
+            self.addi(T2, ZERO, 2048 * ord(string[i]))
             self.save_byte(T2, T1)
             self.addi(T1, T1, 1)
         self.save_byte(ZERO, T1)
