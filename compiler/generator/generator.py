@@ -550,11 +550,19 @@ class FinalGenerator:
         self.check_zero_division(r2, False)
         self.add_command("div.s", dest, r1, r2)
 
+    def bool_constant(self, con):
+        if 'true' in con:
+            self.addi(T0, ZERO, 1)
+        else:
+            self.addi(T0, ZERO, 0)
+
     def math_operate(self, parts):
         if len(parts) == 3:
             self.add(T0, T1, ZERO)
-        elif parts[2] in [INTCONSTANT, BOOLCONSTANT]:
+        elif parts[2] == INTCONSTANT:
             self.addi(T0, ZERO, parts[-1])
+        elif parts[2] == BOOLCONSTANT:
+            self.bool_constant(parts[-1])
         elif parts[2] == STRINGCONSTANT:
             self.save_string(parts[-1])
         elif parts[-2] == LENGTH:
