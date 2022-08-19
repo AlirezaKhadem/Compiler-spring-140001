@@ -490,7 +490,7 @@ class FinalGenerator:
 
     # move from int register to float register
     def move_cl(self, t, f):
-        self.add_command("mtcl", t, f)
+        self.add_command("mtc1", t, f)
 
     def type_conversion(self, parts):
         if parts[-2] in [ITOD, DTOI]:
@@ -499,7 +499,7 @@ class FinalGenerator:
                 self.itod()
             else:
                 self.dtoi()
-            self.add_command("mfcl", T0, F0)
+            self.add_command("mfc1", T0, F0)
         else:
             if parts[-2] == BTOI:
                 self.btoi()
