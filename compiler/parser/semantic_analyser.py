@@ -513,11 +513,11 @@ class SemanticAnalyzer(Visitor):
 
         formal_type = ""
         actual_type = ""
-
         if formals.data == VARIABLE and actuals.data == EXPR:
             formal_type = self.type_to_string(formals.children[0])
             actual_type = actuals.expression_type
-        elif formals.children[-1].data == VARIABLE and actuals.children[-1].data == EXPR:
+        elif isinstance(formals.children[-1], Tree) and isinstance(actuals.children[-1], Tree) and \
+                formals.children[-1].data == VARIABLE and actuals.children[-1].data == EXPR:
             formal_type = self.type_to_string(formals.children[-1].children[0])
             actual_type = actuals.children[-1].expression_type
         else:
