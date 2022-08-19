@@ -772,7 +772,7 @@ class FinalGenerator:
         index = 0
         is_set = SET in parts
         for i in range(len(parts)):
-            if parts[i][0] in ['s', 't'] and parts[i] != 'true':
+            if parts[i][0] in ['s', 't'] and parts[i] not in ['true', 'string']:
                 if i == 0 and is_set:
                     self.load_var_or_array("$s" + str(index), parts[i], True)
                     parts[i] = "$s" + str(i)
@@ -899,7 +899,7 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    file = 't131-array-10.d'
+                    file = 't099-string-2.d'
                     print(file)
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
@@ -956,7 +956,7 @@ class GeneratorTester:
 
 
 if __name__ == "__main__":
-    GeneratorTester('../generator/tests/Arrays').test()
+    GeneratorTester('../generator/tests/StringExpressions').test()
 
 # a = b should not be void cause of many of errors
 # Boolean...
