@@ -916,7 +916,7 @@ class GeneratorTester:
                     final_generator.convert()
                     code = final_generator.final_code
                     print(generator.code)
-
+                    generator.code = ""
                     print(code)
                     exit()
 
