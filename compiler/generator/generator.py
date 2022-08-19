@@ -721,10 +721,10 @@ class FinalGenerator:
         self.add_label()
 
     def load_byte(self, reg, address, offset=""):
-        self.add_command("lb", reg, address, str(offset) + '(' + address + ')')
+        self.add_command("lb", reg, str(offset) + '(' + address + ')')
 
     def save_byte(self, reg, address, offset=""):
-        self.add_command("sb", reg, address, str(offset) + '(' + address + ')')
+        self.add_command("sb", reg, str(offset) + '(' + address + ')')
 
     def check_zero_division(self, reg, is_int):
         if is_int:
