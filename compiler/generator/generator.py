@@ -609,7 +609,7 @@ class FinalGenerator:
 
     def save_string(self, string):
         string = string[1:-1]
-        self.addi(A0, ZERO, len(string))
+        self.addi(A0, ZERO, len(string) + 1)
         self.syscall(9)
         self.add(T0, V0, ZERO)
         self.add(T1, T0, ZERO)
