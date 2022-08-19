@@ -901,7 +901,7 @@ class GeneratorTester:
         for root, dirs, files in os.walk(self.tests_path):
             for file in files:
                 if file[-2:] == '.d':
-                    file = 't159-loop-8.d'
+                    file = 't157-loop-6.d'
                     print(file)
                     tree, _ = self.get_tree(root + '/' + file)
                     self.set_parents(tree)
@@ -929,7 +929,6 @@ class GeneratorTester:
                     final_generator = FinalGenerator(generator.code)
                     final_generator.convert()
                     code = final_generator.final_code
-                    print(generator.code)
                     generator.code = ""
                     print(code)
                     exit()
