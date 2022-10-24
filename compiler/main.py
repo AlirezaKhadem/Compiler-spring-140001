@@ -1,21 +1,15 @@
+from lark import Tree
+
+from compiler.generator.generator import Generator, FinalGenerator
 from compiler.parser.grammar import grammar, start
 from compiler.parser.parser import Parser, SetArguments, SemanticAnalyzer
-from lark import Tree
 
 
 def get_classes(tree):
-    classes = tree.find_pred(lambda v: isinstance(v, Tree) and v.data in ["classdecl","interfacedecl"])
+    classes = tree.find_pred(lambda v: isinstance(v, Tree) and v.data in ["classdecl", "interfacedecl"])
     final_classes = {}
     for clas in classes:
-        parents = []
-        for i in range(clas.children):
-            if not isinstance(clas.children[i], Tree) and clas.children[i].type == 'EXTENDS':
-                parents.append(clas.children[i+1].value)
-            elif isinstance(clas.children[i], Tree) and clas.data == 'implements':
-                idents = tree.find_pred(lambda v: v.type == 'IDENT')
-                for v in idents:
-                    parents.append(v.value)
-        final_classes[clas.children[1]] = (clas, parents)
+        final_classes[clas] = clas.children[1].value
     return final_classes
 
 
@@ -27,7 +21,14 @@ def set_parents(tree):
             ch.parent = tree
             set_parents(ch)
 
+
 parser = Parser(grammar=grammar, start=start, parser="lalr")
-tree = parser.parser.parse("class\n_A\nextends\n_B\n{\n}\nclass\n_B\n{\n}\n")
+tree = parser.parser.parse("int\n_v\n(\n)\n{\n_f\n(\n)\n;\n}\n")
 set_parents(tree)
-SetArguments.visit_topdown(tree)
+SetArguments().visit(tree)
+SemanticAnalyzer(get_classes(tree)).visit(tree)
+generator = Generator()
+generator.visit(tree)
+final_generator = FinalGenerator(generator.code)
+final_generator.convert()
+code = final_generator.final_code

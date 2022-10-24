@@ -13,16 +13,62 @@ __author__ = 'Matin Amini, Alireza Khadem'
 from lark import Lark, Visitor, Tree
 
 
+def error():
+    print("Semantic Error")
+    exit()
+
+
 class SetArguments(Visitor):
+
+    def __init__(self):
+        self.label = 0
 
     def start(self, tree):
         tree.vars = []
         tree.funcs = []
-        for ch in tree.find_data("decl"):
+        for node in tree.find_data("decl"):
+            ch = node.children[0]
             if ch.data == 'variabledecl':
-                tree.vars.append(ch.children[0])
+                tree.vars.append(ch)
             elif ch.data == 'functiondecl':
                 tree.funcs.append(ch)
+
+    def set_parent_loop(self, tree):
+        parent = tree.parent
+        while parent is not None:
+            if parent.data in ['forstmt', 'whilestmt']:
+                tree.parent_loop = parent
+                return
+        error()
+
+    def breakstmt(self, tree):
+        self.set_parent_loop(tree)
+
+    def continuestmt(self, tree):
+        self.set_parent_loop(tree)
+
+    def reserve_label(self, i):
+        self.label += i
+        return self.label - i
+
+    def forstmt(self, tree):
+        tree.label = self.reserve_label(2)
+        tree.exps = [None] * 3
+        for i in range(len(tree.children)):
+            ch = tree.children[i]
+            if isinstance(ch, Tree) and ch.data == 'expr':
+                if i == 2:
+                    tree.exps[0] = ch
+                elif i == len(tree.children) - 3:
+                    tree.exps[2] = ch
+                else:
+                    tree.exps[1] = ch
+
+    def whilestmt(self, tree):
+        tree.label = self.reserve_label(2)
+
+    def ifstmt(self, tree):
+        tree.label = self.reserve_label(1)
 
     def stmtblock(self, tree):
         i = 1
@@ -34,7 +80,7 @@ class SetArguments(Visitor):
         tree.vars = []
         tree.funcs = []
         for field in tree.find_data("field"):
-            if field.children[len(field.children) - 1].data == 'functiondecl':
+            if field.children[-1].data == 'functiondecl':
                 tree.funcs.append(field)
             else:
                 tree.vars.append(field)
@@ -43,7 +89,7 @@ class SetArguments(Visitor):
         tree.class_parent = None
         tree.interface_parents = []
         if not isinstance(tree.children[2], Tree) and tree.children[2].value == 'EXTENDS':
-            tree.class_parents = tree.children[3].children[3].value
+            tree.class_parent = tree.children[3].value
         for ch in tree.find_data("implements"):
             for i in range(1, len(ch.children), 2):
                 tree.interface_parents.append(ch.children[i].value)
@@ -53,6 +99,7 @@ class SetArguments(Visitor):
         self.set_class_parents(tree)
 
     def functiondecl(self, tree):
+        print('here')
         tree.inputs = []
         for formal in tree.find_data("formals"):
             for var in formal.find_data("variable"):
@@ -63,18 +110,15 @@ class SetArguments(Visitor):
                     "STRINGCONSTANT": "STRING"}
         tree.exptype = type_map[tree.children[0].type]
 
+
 class SemanticAnalyzer(Visitor):
     def __init__(self, classes):
         super().__init__()
         self.classes = classes
 
-    def error(self):
-        print("Semantic Error")
-        exit()
-
     def correct_unary_operation_type(self, tree):
         return (tree.children[0].type == "MINUS" and tree.children[1].exptype in ["INTT", "DOUBLE"]) or (
-                    tree.children[0].type == "NOT" and tree.children[1].type == "BOOL")
+                tree.children[0].type == "NOT" and tree.children[1].type == "BOOL")
 
     def correct_binary_operation_type(self, tree):
         if tree.children[0].exptype != tree.children[2].exptype:
@@ -83,84 +127,110 @@ class SemanticAnalyzer(Visitor):
             return tree.children[0].exptype in ["INTT", "DOUBLE", "STRING"] or "[]" in tree.children[0].exptype
         return (tree.children[1].type in ["MINUS", "MULT", "DIV"] and tree.children[0].exptype in ["INTT",
                                                                                                    "DOUBLE"]) or (
-                           tree.children[1].type == "MOD" and tree.children[0].exptype == "INTT") or (
-                           tree.children[1].type in ["MORE", "LESS", "MORQ", "LESQ"] and tree.children[0].exptype in [
-                       "INTT", "DOUBLE"]) or (
-                           tree.children[1].type in ["AND", "OR"] and tree.children[0].type == "BOOL")
+                       tree.children[1].type == "MOD" and tree.children[0].exptype == "INTT") or (
+                       tree.children[1].type in ["MORE", "LESS", "MORQ", "LESQ"] and tree.children[0].exptype in [
+                   "INTT", "DOUBLE"]) or (
+                       tree.children[1].type in ["AND", "OR"] and tree.children[0].type == "BOOL")
 
     def check_operation(self, tree):
         if isinstance(tree.children[0], Tree) and tree.children[0].data == 'expr':
             if not self.correct_binary_operation_type(tree):
-                self.error()
+                error()
             if tree.children[1].type in ["PLUS", "MINUS", "MULT", "DIV", "MOD"]:
                 tree.exptype = tree.children[0].exptype
             elif tree.children[1].type in ["MORE", "LESS", "MORQ", "LESQ", "EQUALS", "NEQ", "AND", "OR"]:
                 tree.exptype = "BOOL"
-        elif isinstance(tree.children[1]) and tree.children[1].data == 'expr':
+        elif isinstance(tree.children[1], Tree) and tree.children[1].data == 'expr':
             if not self.correct_unary_operation_type(tree):
-                self.error()
+                error()
             tree.exptype = tree.children[1].exptype
 
     def type_to_string(self, type):
+        if not isinstance(type, Tree):
+            return "VOID"
         type_string = ""
         for token in type.children:
-            type_string = type_string + token.value[:len(token.value) - 1]
+            type_string = type_string + token.value[:- 1]
         return type_string
 
-    def find_var(self, tree, id):
-        for part in tree.vars:
-            for var in part.find_data("variable"):
-                if var.children[1] == id:
-                    return var.children[0]
+    def find_ident_decl(self, scope, id, ident_mode):
+        if scope.data == 'classdecl':
+            return self.get_field_decl(scope, scope.children[1].value, id)
+        mode_map = {"variable": scope.vars, "functiondecl": scope.funcs}
+        for part in mode_map[ident_mode]:
+            for decl in part.find_data(ident_mode):
+                if decl.children[1].value == id:
+                    return decl
+        return None
 
-    def get_var_type(self, tree, id):
+    def get_ident_decl(self, tree, id, ident_mode):
+        block_types = ["classdecl", "start"]
+        if ident_mode == "variable":
+            block_types = block_types + ["stmtblock", "functiondecl"]
         scope = tree
         while scope is not None:
-            if scope.data in ["stmtblock", "functiondecl", "classdecl", "start"]:
-                id_type = self.find_var(tree, id)
-                if id_type is not None:
-                    return id_type
+            if scope.data in block_types:
+                decl = self.find_ident_decl(scope, id, ident_mode)
+                if decl is not None:
+                    return decl
             scope = scope.parent
-        self.error()
+        error()
+
+    def get_decl_type(self, tree):
+        if tree is None:
+            return None
+        return self.type_to_string(tree.children[0])
 
     def check_access(self, tree, obj_type, access):
-        if access in ['','PUBLIC']:
+        if access in ['', 'PUBLIC']:
             return True
         if tree.data == 'start':
             return False
         class_name = tree.children[1].value
-        return (access == 'PRIVATE' and class_name == obj_type) or (access == 'PROTECTED' and self.is_parent_of(obj_type, class_name))
+        return (access == 'PRIVATE' and class_name == obj_type) or (
+                    access == 'PROTECTED' and self.is_parent_of(obj_type, class_name))
 
-    def get_field_type(self, tree, class_type, id):
+    def get_field_decl(self, tree, obj_type, id, ident_mode):
         while tree.parent is not None and tree.data != 'classdecl':
             tree = tree.parent
-        class_tree = self.classes[class_type]
+        class_tree = self.classes[obj_type]
         while class_tree is not None:
-            for field in class_tree.vars:
-                if field.children[len(field.children)-1].children[1] == id and self.check_access(class_tree, class_type , field.children[0].children[0]):
-                    return field.children[len(field.children)-1].children[0]
+            mode_map = {"variable": tree.vars, "functiondecl": tree.funcs}
+            idents = mode_map[ident_mode]
+            for field in idents:
+                for decl in field.find_data(ident_mode):
+                    if decl.children[1] == id and self.check_access(class_tree, obj_type, field.children[0].value):
+                        return decl
             if class_tree.class_parent is None:
-                self.error()
+                error()
             class_tree = self.classes[class_tree.class_parent]
+        return None
 
     def lvalue(self, tree):
         if not isinstance(tree.children[0], Tree):
-            tree.exptype = self.type_to_string(self.get_var_type(tree, tree.children[0].value))
+            tree.exptype = self.get_decl_type(self.get_ident_decl(tree, tree.children[0].value, "variable").children[0])
         elif tree.children[1].type == 'DOT':
-            if tree.children[0].exptype in ["INTT","BOOL","DOUBLE","STRING","VOID"] or '[' in tree.exptype:
-                self.error()
-            tree.exptype = self.type_to_string(self.get_field_type(tree, tree.children[0].exptype, tree.children[2].value))
+            if tree.children[0].exptype in ["INTT", "BOOL", "DOUBLE", "STRING", "VOID"] or '[' in tree.exptype:
+                error()
+            tree.exptype = self.get_decl_type(
+                self.get_field_decl(tree, tree.children[0].exptype, tree.children[2].value, "variable"))
+            if tree.exptype is None:
+                error()
         elif '[' not in tree.children[0].exptype or tree.children[2].exptype != 'INTT':
-            self.error()
+            error()
         else:
-            tree.exptype = tree.children[0].exptype[:len(tree.children[0].exptype)-2]
+            tree.exptype = tree.children[0].exptype[:-2]
 
     def is_parent_of(self, t1, t2):
-        if t1.count('[') != t2.count('[') or (t1.count('[') > 0 and t1 != t2):
+        if t1.count('[') != t2.count('['):
             return False
+        if t1.count('[') > 0 or t1 in ["INTT", "BOOL", "DOUBLE", "STRING"]:
+            return t1 == t2
+        if t2 == "NULL":
+            return True
         clas2 = self.classes[t2]
         while clas2 is not None:
-            if clas2.children[1] == t1:
+            if clas2.children[1] == t1 or t1 in clas2.interface_parents:
                 return True
             clas2 = clas2.class_parent
         return False
@@ -170,7 +240,7 @@ class SemanticAnalyzer(Visitor):
             if self.is_parent_of(tree.children[0].exptype, tree.children[2].exptype):
                 tree.exptype = 'VOID'
             else:
-                self.error()
+                error()
 
     def expr(self, tree):
         if len(tree.children) == 1 and isinstance(tree.children[0], Tree):
@@ -179,16 +249,61 @@ class SemanticAnalyzer(Visitor):
             self.check_operation(tree)
             self.check_set(tree)
 
+    def ifstmt(self, tree):
+        if tree.children[2].exptype != 'BOOL':
+            error()
+
+    def whilestmt(self, tree):
+        if tree.children[2].exptype != 'BOOL':
+            error()
+
+    def forstmt(self, tree):
+        if tree.e2.exptype != 'BOOL':
+            error()
+
+    def check_param_match(self, formals, actuals):
+        if actuals.data == 'actuals':
+            if len(actuals.children) == 0:
+                return len(formals.children) == 0
+            actuals = actuals.children[0]
+        if len(formals.children) != len(actuals.children):
+            return False
+        formal_type = self.type_to_string(formals.children[-1].children[0])
+        actual_type = actuals.children[-1].exptype
+        if not self.is_parent_of(formal_type, actual_type):
+            return False
+        if len(actuals) == 1:
+            return True
+        return self.check_param_match(formals.children[0], actuals.children[0])
+
+    def functiondecl(self, tree):
+        return_type = self.type_to_string(tree.children[0])
+        for stmt in tree.find_data("returnstmt"):
+            if (return_type == "VOID" and len(stmt.children) > 2) or (
+                    return_type != "VOID" and not self.is_parent_of(return_type, stmt.children[1].exptype)):
+                return False
+        return True
+
+    def call(self, tree):
+        decl = None
+        if not isinstance(tree.children[0], Tree):
+            decl = self.get_ident_decl(tree, tree.children[0], "functiondecl")
+        else:
+            decl = self.get_field_decl(tree, tree.children[0].exptype, tree.children[2], "functiondecl")
+        if decl is None or not self.check_param_match(decl.children[3], tree.children[-2]):
+            error()
+        tree.exptype = self.type_to_string(decl.children[0])
+
+
 class Parser:
     def __init__(self, grammar, start, parser=None):
-        self.parser = Lark(grammar=grammar, start=start, parser=parser, lexer="contextual")
+        self.parser = Lark(grammar=grammar, start=start, parser=parser)
 
     def parse_tokens(self, tokens):
         try:
-            self.parser.parser.parse(tokens)
-            return "OK"
+            return self.parser.parser.parse(tokens), "OK"
         except:
-            return "Syntax Error"
+            return None, "Syntax Error"
 
     def parse_file(self, file_address):
         from compiler.scanner.scanner import Scanner
@@ -206,7 +321,7 @@ class ParserTester:
         import os
         from compiler.parser.grammar import grammar, start
 
-        parser = Parser(grammar, start, parser='lalr')
+        parser = Parser(grammar, start, parser='earley')
         for test_file in os.listdir(self.tests_path):
             self.check_equality(test_file, parser)
 
